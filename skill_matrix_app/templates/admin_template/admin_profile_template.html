@@ -1,0 +1,82 @@
+{% extends 'admin_template/base_template.html' %}
+{% block page_title %}
+{% endblock page_title %}
+{% block main_content %}
+<div class="container bootstrap snippets bootdey">
+    <h2 class="text-primary"><span class="glyphicon glyphicon-user"></span>Profil</h2>
+      <hr>
+	<div class="row">
+      <!-- left column -->
+      <div class="col-md-3">
+        <div class="text-center">
+            {% if user.admins.profile_pic == "" %}
+                <img src="media/default/avatar.png" class="avatar img-circle" alt="avatar" style="width: 175px">
+            {% else %}
+                <img src="{{ user.admins.profile_pic }}" class="avatar img-circle" alt="avatar" style="width: 175px">
+            {% endif %}
+            <br><br>
+           <div class="d-flex justify-content-center">
+               <a href="{% url 'admin_change_password' %}" type="button" class="btn btn-outline-secondary">Zmień hasło...</a>
+           </div>
+        </div>
+      </div>
+
+
+
+      <!-- edit form column -->
+      <div class="col-md-9 personal-info">
+          <div class="col-lg-8">
+            {% if messages %}
+                {%  for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div class="alert alert-danger" style="margin-top:10px">{{ message }}</div>
+                    {% endif %}
+                    {% if message.tags == 'success' %}
+                        <div class="alert alert-success" style="margin-top:10px">{{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+          </div>
+        <h3>Dane personalne</h3>
+
+        <form class="form-horizontal" action="{% url 'admin_profile_save' %}" role="form" method="post" enctype="multipart/form-data">
+           {% csrf_token %}
+{#            {{ form }}#}
+            <div class="form-group">
+            <label class="col-lg-3 control-label">Email:</label>
+            <div class="col-lg-8">
+              <input class="form-control" name="email", type="text" value="{{ user.email }}" disabled="disabled">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-lg-3 control-label">Imię:</label>
+            <div class="col-lg-8">
+              <input class="form-control" name="first_name" type="text" value="{{ user.first_name }}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-lg-3 control-label">Nazwisko:</label>
+            <div class="col-lg-8">
+              <input class="form-control" name="last_name" type="text" value="{{ user.last_name }}">
+            </div>
+          </div>
+            <div class="form-group">
+            <label class="col-lg-3 control-label">Zdjęcie:</label>
+            <div class="col-lg-8">
+              <input class="form-control-file" name="profile_pic" type="file" accept=".jpg,.gif,.png">
+            </div>
+          </div>
+            <div class="card-footer">
+                <div class="form-group">
+                     <div class="col-lg-8">
+                  <button type="submit" class="btn btn-info btn-block">Zapisz</button>
+            </div>
+                </div>
+            </div>
+        </form>
+      </div>
+
+  </div>
+</div>
+<hr>
+{% endblock main_content %}

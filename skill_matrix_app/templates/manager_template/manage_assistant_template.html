@@ -1,0 +1,166 @@
+{% extends 'manager_template/base_template.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+{% endblock page_title %}
+{% block main_content %}
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+
+                            <button type="submit" class="btn btn-info btn-block" data-toggle="modal" data-target="#ModelSignup">Zaproś asystenta
+
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- /.card -->
+    </section>
+
+    <!--Modal-->
+    <form role="form" action="/add_assistant_save" method="post">
+        {% csrf_token %}
+        <div class="modal" tabindex="-1" role="dialog" id="ModelSignup">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Zaproszenie</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {% crispy form %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <!--End Modal-->
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Asystenci</h3>
+
+                            <div class="card-tools">
+                                <div class="input-group input-group-sm" style="width: 150px;">
+                                    <div class="input-group-append">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover text-nowrap ">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Imię</th>
+                                    <th>Nazwisko</th>
+                                    <th>Email</th>
+                                    <th>Ostatnie logowanie</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% for assistant in assistants %}
+                                    <tr>
+                                        <td class="align-middle"><img src="{{ assistant.profile_pic }}" style="width: 50px" /></td>
+                                        <td class="align-middle">{{ assistant.admin.first_name }}</td>
+                                        <td class="align-middle">{{ assistant.admin.last_name }}</td>
+                                        <td class="align-middle">{{ assistant.admin.email }}</td>
+                                        <td class="align-middle">{{ assistant.admin.last_login |date:"d-m-Y"  }}</td>
+                                        {#                                        <td class="align-middle">{{ assistant.company_id.id }}</td>#}
+
+                                        <td class="align-middle">
+                                            <button type="button" class="btn btn-danger" data-toggle="modal"
+                                                        data-target="#deleteModal" data-id="{{ assistant.admin.id }}"
+                                                        data-first_name="{{ assistant.admin.first_name }}"
+                                                        data-last_name="{{ assistant.admin.last_name }}">Usuń
+                                            </button>
+                                        </td>
+
+                                    </tr>
+                                {% endfor %}
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {% if messages %}
+                            {% for message in messages %}
+                                {% if message.tags == 'error' %}
+                                    <div class="alert alert-danger" style="margin-top:10px">{{ message }}</div>
+                                {% endif %}
+                                {% if message.tags == 'success' %}
+                                    <div class="alert alert-success" style="margin-top:10px">{{ message }}</div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Usuwanie użytkownika</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Anuluj</button>
+                        <a type="button" class="btn btn-outline-danger" >Potwierdź</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+    <!-- /.content -->
+{% endblock main_content %}
+{% block custom_js %}
+    <script>
+        $(document).ready(function () {
+
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                let button = $(event.relatedTarget); // Button that triggered the modal
+                let assistant_id = button.data('id');
+                let assistant_first_name = button.data('first_name');
+                let assistant_last_name = button.data('last_name');
+
+                let modal = $(this)
+
+                modal.find('.modal-body p').text("Czy chcesz usunąć użytkownika " + assistant_first_name + " " + assistant_last_name + " ?");
+                modal.find('.btn-outline-danger').attr("href", "/delete_assistant/" + assistant_id);
+            });
+
+        });
+    </script>
+{% endblock custom_js %}

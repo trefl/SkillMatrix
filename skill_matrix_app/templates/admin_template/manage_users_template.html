@@ -1,0 +1,124 @@
+{% extends 'admin_template/base_template.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+{% endblock page_title %}
+{% block main_content %}
+    <!-- Main content -->
+
+
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Użytkownicy</h3>
+
+                            <div class="card-tools">
+                                <div class="input-group input-group-sm" style="width: 150px;">
+                                    {#                    <input type="text" name="table_search" class="form-control float-right" placeholder="Search">#}
+                                    <div class="input-group-append">
+                                        {#                      <button type="submit" class="btn btn-default"><i class="fas fa-search"></i></button>#}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover text-nowrap">
+                                <thead>
+                                <tr>
+                                    <th>Firma</th>
+                                    <th>Typ</th>
+                                    <th>Imię</th>
+                                    <th>Nazwisko</th>
+                                    <th>Email</th>
+                                    <th>Ostatnie logowanie</th>
+
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {% for m_user in m_users %}
+                                    <tr>
+
+                                    <td class="align-middle">{{ m_user.managers.company_id.name }}</td>
+                                    <td class="align-middle">Menedżer</td>
+                                    <td class="align-middle">{{ m_user.first_name }}</td>
+                                    <td class="align-middle">{{ m_user.last_name }}</td>
+                                    <td class="align-middle">{{ m_user.email }}</td>
+                                    <td class="align-middle">{{ m_user.last_login |date:"d-m-Y"}}</td>
+                                    </tr>
+
+                                        {% for a_user in a_users %}
+                                            {% if a_user.assistants.company_id_id == m_user.managers.company_id_id  %}
+                                                <tr>
+                                            <td class="align-middle">{{ a_user.assistants.company_id.name }}</td>
+                                            <td class="align-middle">Asystent</td>
+                                            <td class="align-middle">{{ a_user.first_name }}</td>
+                                            <td class="align-middle">{{ a_user.last_name }}</td>
+                                            <td class="align-middle">{{ a_user.email }}</td>
+                                            <td class="align-middle">{{ a_user.last_login |date:"d-m-Y"}}</td>
+                                                  </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {% if messages %}
+                            {% for message in messages %}
+                                {% if message.tags == 'error' %}
+                                    <div class="alert alert-danger" style="margin-top:10px">{{ message }}</div>
+                                {% endif %}
+                                {% if message.tags == 'success' %}
+                                    <div class="alert alert-success" style="margin-top:10px">{{ message }}</div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Usuwanie użytkownika</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Anuluj</button>
+                        <a type="button" class="btn btn-outline-danger" >Potwierdź</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+    <!-- /.content -->
+{% endblock main_content %}

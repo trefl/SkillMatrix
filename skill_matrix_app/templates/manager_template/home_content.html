@@ -1,0 +1,20 @@
+{% extends 'manager_template/base_template.html' %}
+{%  block page_title %}
+    Home<br>
+   username: {{ user.username }}<br>
+    user id: {{ user.id }}<br>
+    nazwa: {{ user.first_name }}<br>
+
+    company_połączenie: {{ user.managers.company_id_id}}<br>
+    company_id : {{ company.id }}<br>
+    nazwa firmy: {{ company.name }}<br>
+
+{% endblock page_title %}
+{% block main_content %}
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+      </div>
+    </section>
+    <!-- /.content -->
+{% endblock main_content %}

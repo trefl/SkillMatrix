@@ -1,0 +1,17 @@
+{% autoescape off %}
+Witaj {{ user.first_name }},
+
+Użytkownik {{ admin.first_name }} {{ admin.last_name }} utworzył dla Ciebie konto asystenta w portalu:
+
+Skill Matrix
+
+Aby dołączyć kliknij w poniższe łącze:
+
+{{ protocol }}://{{ domain }}{% url 'password_reset_confirm' uidb64=uid token=token %}
+
+Jeśli link nie działa, skopiuj i wklej adres w pasek  URL przeglądarki
+
+Z poważaniem
+Skill Matrix
+
+{%  endautoescape %}
