@@ -11,11 +11,9 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.template import loader
 
-from validate_email import validate_email
 
 # Create your views here.
 from django.urls import reverse
-from django.views.generic import View
 
 from skill_matrix_app.EmailBackEnd import EmailBackEnd
 from skill_matrix_app.forms import SignupManagerForm, CreateUserForm
@@ -107,8 +105,7 @@ def do_admin_signup(request):
             form = CreateUserForm(request.POST)
             return render(request, 'signup_admin_page.html', {"form": form})
 
-        # messages.ad_message(request, messages.SUCCESS, "Successfully Added Admin ")
-        # return HttpResponseRedirect(request("signup_admin"))
+
 
 
 def do_manager_signup(request):
@@ -130,7 +127,6 @@ def do_manager_signup(request):
             user = CustomUser.objects.create_user(username=email, password=password, first_name=first_name, last_name=last_name, email=email, user_type=2)
             user.managers.company_id_id = company_model.id
             user.save()
-            # return print(company_model.id)
 
             messages.success(request, "Rejestracja zakończona sukcesem. Możesz się zalogować")
             return HttpResponseRedirect(reverse("show_login"))
@@ -143,19 +139,10 @@ def do_manager_signup(request):
 
 def send_activation_email(request, user, use_https=False, from_email=None):
     current_site = get_current_site(request)
-    print(current_site)
     token_generator = PasswordResetTokenGenerator()
-    print(token_generator)
-    token = token_generator.make_token(user)
-    print(token)
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
-    print(uid)
     site_name = current_site.name
-    print(site_name)
     domain = current_site.domain
-    print(domain)
     admin = request.user
-    print(admin)
     c = {
         'email': user.email,
         'domain': domain,
@@ -169,7 +156,6 @@ def send_activation_email(request, user, use_https=False, from_email=None):
     subject_template_name = 'registration/password_reset_subject.txt',
     email_template_name = 'registration/invite_user_email.html',
     subject = loader.render_to_string(subject_template_name, c)
-    # Email subject *must not* contain newlines
     subject = ''.join(subject.splitlines())
     email = loader.render_to_string(email_template_name, c)
     send_mail(subject, email, from_email, [user.email])

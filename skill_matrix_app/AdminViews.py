@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.views.decorators.csrf import csrf_exempt
-from skill_matrix_app.forms import AddManagerForm, AddAdminForm, CreateUserForm, ChangePasswordForm
+from skill_matrix_app.forms import AddManagerForm, CreateUserForm, ChangePasswordForm
 from skill_matrix_app.models import CustomUser, Companies, Admins, Managers, Assistants
 from skill_matrix_app.views import send_activation_email
 
@@ -42,17 +42,13 @@ def add_admin_save(request):
             user = CustomUser.objects.create_user(username=email, email=email, last_name=last_name, first_name=first_name, user_type=1)
             user.set_password(CustomUser.objects.make_random_password())
             user.save()
-            #-------------
             send_activation_email(request, user)
-
-            #--------------
             messages.success(request, "Dodanie uzytkownika zakończone powodzeniem")
             return HttpResponseRedirect(reverse("manage_admin"))
         else:
             form = CreateUserForm(request.POST)
             messages.error(request, "Dodanie uzytkownika zakończone niepowodzeniem")
             return render(request, 'admin_template/add_admin_template.html', {"form": form})
-            # return HttpResponseRedirect(request("manage_admin"))
 
 
 

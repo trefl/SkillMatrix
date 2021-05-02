@@ -33,7 +33,7 @@
             <a href="{% url 'add_admin' %}" class="nav-link {% if request.path == add_admin %} active {% endif %}">
               <i class="nav-icon fas fa-th"></i>
               <p>
-                Add Admin
+                Dodaj Administratora
               </p>
             </a>
           </li>
@@ -42,7 +42,7 @@
             <a href="{% url 'manage_admin' %}" class="nav-link {% if request.path == manage_admin %} active {% endif %}">
               <i class="nav-icon fas fa-th"></i>
               <p>
-                Manage Admin
+                Administratorzy
               </p>
             </a>
           </li>
@@ -56,12 +56,11 @@
             </a>
           </li>
           <li class="nav-item">
-              {% url 'manage_manager' as manage_manager %}
-              {% url 'edit_manager' manager_id=id as edit_manager %}
-{#            <a href="{% url 'manage_student' %}" class="nav-link {% if request.path == manage_manager %} active {% endif %} {% if request.path == edit_manager %} active {% endif %}">#}
+              {% url 'manage_users' as manage_users %}
+            <a href="{% url 'manage_users' %}" class="nav-link {% if request.path == manage_users %} active {% endif %}">
               <i class="nav-icon fas fa-th"></i>
               <p>
-                Manage Managers
+                Użytkownicy
               </p>
             </a>
           </li>

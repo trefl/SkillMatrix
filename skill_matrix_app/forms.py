@@ -1,5 +1,7 @@
+from datetime import date
 from re import search
 
+from phone_field import PhoneField
 from crispy_forms import bootstrap, layout
 from crispy_forms.bootstrap import PrependedText, AppendedText
 from crispy_forms.helper import FormHelper
@@ -7,9 +9,12 @@ from crispy_forms.layout import Layout, HTML, Submit
 from django import forms
 from django.contrib.auth.forms import PasswordChangeForm
 from django.core.validators import validate_email
-from django.urls import reverse
+from django.forms import DateField
 
-from skill_matrix_app.models import CustomUser
+from django.urls import reverse
+from django.utils.datetime_safe import datetime
+
+from skill_matrix_app.models import CustomUser, Workers
 
 
 class CreateUserForm(forms.Form):
@@ -140,26 +145,50 @@ class ChangePasswordForm(PasswordChangeForm):
 
         Submit('change_password', 'Zmień hasło', css_class="btn btn-lg btn-primary btn-block"),
 
-
-class EditUserForm(forms.Form):
-    first_name = forms.CharField(label="Imię", max_length=50, widget=forms.TextInput(
-        attrs={"class": "form-control", "autocomplete": "off", "placeholder": "Podaj imię"}))
-    last_name = forms.CharField(label="Nazwisko", required=False, max_length=50, widget=forms.TextInput(
-        attrs={"class": "form-control", "autocomplete": "off", "placeholder": "Podaj nazwisko"}))
-    email = forms.EmailField(label="Email", required=True, max_length=50, widget=forms.EmailInput(
-        attrs={"class": "form-control", "autocomplete": "off", "placeholder": "Podaj email"}),
-                             error_messages={'invalid': "Nieprawidłowy email"})
-    profile_pic = forms.CharField(label="Profile Pic", max_length=50,
-                                  widget=forms.FileInput(attrs={"class": "form-control"}), required=False)
+class DateInput(forms.DateInput):
+    input_type = 'date'
 
 
-class AddAdminForm(forms.Form):
-    first_name = forms.CharField(label="First Name", max_length=50,
-                                 widget=forms.TextInput(attrs={"class": "form-control"}))
-    last_name = forms.CharField(label="Last Name", max_length=50,
-                                widget=forms.TextInput(attrs={"class": "form-control"}))
-    email = forms.EmailField(label="Email", max_length=50,
-                             widget=forms.EmailInput(attrs={"class": "form-control", "autocomplete": "off"}))
+class CreateWorkerForm(forms.Form):
+    first_name = forms.CharField(label="Imię", required=True, max_length=50, widget=forms.TextInput(attrs={"class": "form-control"}))
+    second_name = forms.CharField(label="Drugie imię", required=False, max_length=50, widget=forms.TextInput(attrs={"class": "form-control"}))
+    last_name = forms.CharField(label="Nazwisko", required=True, max_length=50, widget=forms.TextInput(attrs={"class": "form-control"}))
+    birthday = forms.DateField(label="Data urodzenia", initial=date.today, widget=DateInput)
+    profile_pic = forms.FileField(label="Zdjęcie", required=False, max_length=50, widget=forms.FileInput(attrs={"class": "form-control-file", "accept": ".jpg,.gif,.png"}))
+    archival = forms.BooleanField(label="Archiwalny", required=False)
+    position_id = forms.ChoiceField(label="Stanowisko", required=False, widget=forms.Select(attrs={"class": "form-control"}))
+    division_id = forms.ChoiceField(label="Dział/Brygada", required=False, widget=forms.Select(attrs={"class": "form-control"}))
+
+
+
+
+
+
+
+
+
+
+
+
+# class EditUserForm(forms.Form):
+#     first_name = forms.CharField(label="Imię", max_length=50, widget=forms.TextInput(
+#         attrs={"class": "form-control", "autocomplete": "off", "placeholder": "Podaj imię"}))
+#     last_name = forms.CharField(label="Nazwisko", required=False, max_length=50, widget=forms.TextInput(
+#         attrs={"class": "form-control", "autocomplete": "off", "placeholder": "Podaj nazwisko"}))
+#     email = forms.EmailField(label="Email", required=True, max_length=50, widget=forms.EmailInput(
+#         attrs={"class": "form-control", "autocomplete": "off", "placeholder": "Podaj email"}),
+#                              error_messages={'invalid': "Nieprawidłowy email"})
+#     profile_pic = forms.CharField(label="Profile Pic", max_length=50,
+#                                   widget=forms.FileInput(attrs={"class": "form-control"}), required=False)
+
+
+# class AddAdminForm(forms.Form):
+#     first_name = forms.CharField(label="First Name", max_length=50,
+#                                  widget=forms.TextInput(attrs={"class": "form-control"}))
+#     last_name = forms.CharField(label="Last Name", max_length=50,
+#                                 widget=forms.TextInput(attrs={"class": "form-control"}))
+#     email = forms.EmailField(label="Email", max_length=50,
+#                              widget=forms.EmailInput(attrs={"class": "form-control", "autocomplete": "off"}))
 
 
 class AddManagerForm(forms.Form):
@@ -176,10 +205,10 @@ class AddManagerForm(forms.Form):
     company = forms.CharField(label="Company", max_length=50, widget=forms.TextInput(attrs={"class": "form-control"}))
 
 
-class AddAssistantForm(forms.Form):
-    first_name = forms.CharField(label="First Name", max_length=50,
-                                 widget=forms.TextInput(attrs={"class": "form-control"}))
-    last_name = forms.CharField(label="Last Name", max_length=50,
-                                widget=forms.TextInput(attrs={"class": "form-control"}))
-    email = forms.EmailField(label="Email", max_length=50,
-                             widget=forms.EmailInput(attrs={"class": "form-control", "autocomplete": "off"}))
+# class AddAssistantForm(forms.Form):
+#     first_name = forms.CharField(label="First Name", max_length=50,
+#                                  widget=forms.TextInput(attrs={"class": "form-control"}))
+#     last_name = forms.CharField(label="Last Name", max_length=50,
+#                                 widget=forms.TextInput(attrs={"class": "form-control"}))
+#     email = forms.EmailField(label="Email", max_length=50,
+#                              widget=forms.EmailInput(attrs={"class": "form-control", "autocomplete": "off"}))

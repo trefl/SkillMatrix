@@ -72,6 +72,24 @@ urlpatterns = [
     path('manage_assistant', ManagerViews.manage_assistant, name="manage_assistant"),
     path('delete_assistant/<str:assistant_id>', ManagerViews.delete_assistant, name="delete_assistant"),
 
+    path('add_worker', ManagerViews.add_worker, name="add_worker"),
+    path('add_worker_save', ManagerViews.add_worker_save, name="add_worker_save"),
+    path('manage_worker', ManagerViews.manage_worker, name="manage_worker"),
+    path('delete_worker/<str:worker_id>', ManagerViews.delete_worker, name="delete_worker"),
+    path('edit_worker/<str:worker_id>', ManagerViews.edit_worker, name="edit_worker"),
+    path('edit_worker_save', ManagerViews.edit_worker_save, name="edit_worker_save"),
+    path('worker_profile/<str:worker_id>', ManagerViews.worker_profile, name="worker_profile"),
+
+    path('manage_position', ManagerViews.manage_position, name="manage_position"),
+    path('add_position_save', ManagerViews.add_position_save, name="add_position_save"),
+
+
+
+
+
+
+
+
 
 
 

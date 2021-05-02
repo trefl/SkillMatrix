@@ -1,0 +1,96 @@
+{% extends 'manager_template/base_template.html' %}
+
+{% block page_title %}
+{% endblock page_title %}
+{% block main_content %}
+    <!-- Main content -->
+    <section class="content">
+
+        <div class="container-fluid">
+
+            <div class="row d-flex justify-content-center">
+
+                <div class="col-md-6 ">
+                    <!-- general form elements -->
+                    <div class="card card-secondary">
+                        <div class="card-header">
+                            <h3 class="card-title">Dodaj pracownika</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <!-- form start -->
+                        <form role="form" action="/edit_worker_save" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <div class="card-body">
+
+                                <div class="form-group">
+                                    {{ form.first_name.label }}
+                                    <input type="text" name="first_name" class="form-control" maxlength="50" required value="{{ worker.first_name }}">
+                                </div>
+                                <div class="form-group">
+                                {{ form.second_name.label }}
+                                    <input type="text" name="second_name" class="form-control" maxlength="50" value="{{ worker.second_name }}">
+                                </div>
+                                <div class="form-group">
+                                    {{ form.last_name.label }}
+                                    <input type="text" name="last_name" class="form-control" maxlength="50" required value="{{ worker.last_name }}">
+                                </div>
+                                <div class="form-group">
+                                    {{ form.birthday.label }}
+                                    <input type="date" name="birthday"  required value="{{ worker.birthday|date:"Y-m-d" }}">
+                                </div>
+                                <div class="form-group">
+                                    {{ form.archival.label }}
+                                    {% if worker.archival == True %}
+                                        <input type="checkbox" name="archival" checked>
+                                    {% else %}
+                                        <input type="checkbox" name="archival">
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    {{ form.position_id.label }}
+                                    <select name="position_id" class="form-control" id="id_position_id">{{ worker.position_id }}</select>
+                                </div>
+                                <div class="form-group">
+                                    {{ form.division_id.label }}
+                                    {{ form.division_id }}
+                                </div>
+                                <div class="form-group">
+                                    {{ form.profile_pic.label }}
+                                    {{ form.profile_pic }}
+{#                                    <input class="form-control-file" name="profile_pic" type="file" accept=".jpg,.gif,.png">#}
+                                </div>
+
+                            </div>
+                            <!-- /.card-body -->
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-info btn-block">Zapisz zmiany</button>
+                            </div>
+
+                            <div class="card-footer">
+                                <div class="form-group">
+                                    {% if messages %}
+                                        {% for message in messages %}
+                                            {% if message.tags == 'error' %}
+                                                <div class="alert alert-danger"
+                                                     style="margin-top:10px">{{ message }}</div>
+                                            {% endif %}
+                                            {% if message.tags == 'success' %}
+                                                <div class="alert alert-success"
+                                                     style="margin-top:10px">{{ message }}</div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- /.card -->
+
+
+                </div>
+                        </div>
+        </div>
+    </section>
+    <!-- /.content -->
+{% endblock main_content %}

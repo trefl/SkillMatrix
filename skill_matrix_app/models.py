@@ -49,11 +49,9 @@ class Assistants(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
     objects = models.Manager()
 
-
-class Workers(models.Model):
+class Divisions(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    surname = models.CharField(max_length=255)
     company_id = models.ForeignKey(Companies, on_delete=models.CASCADE)
     objects = models.Manager()
 
@@ -64,6 +62,56 @@ class Groups(models.Model):
     company_id = models.ForeignKey(Companies, on_delete=models.CASCADE)
     objects = models.Manager()
 
+
+class Subgroups(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    company_id = models.ForeignKey(Companies, on_delete=models.CASCADE)
+    group_id = models.ForeignKey(Groups, on_delete=models.CASCADE)
+    objects = models.Manager()
+
+
+class Positions(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    company_id = models.ForeignKey(Companies, on_delete=models.CASCADE)
+    objects = models.Manager()
+
+class Workers(models.Model):
+    id = models.AutoField(primary_key=True)
+    first_name = models.CharField(max_length=255)
+    second_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    birthday = models.DateField()
+    profile_pic = models.ImageField(default='/media/default/avatar.png')
+    archival = models.BooleanField(default=False)
+    company_id = models.ForeignKey(Companies, on_delete=models.CASCADE)
+    position_id = models.ForeignKey(Positions, on_delete=models.CASCADE, blank=True, null=True)
+    group_id = models.ForeignKey(Groups, on_delete=models.DO_NOTHING, blank=True, null=True)
+    subgroup_id = models.ForeignKey(Subgroups, on_delete=models.DO_NOTHING, blank=True, null=True)
+    division_id = models.ForeignKey(Divisions, on_delete=models.DO_NOTHING, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    objects = models.Manager()
+
+
+class Skills(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    company_id = models.ForeignKey(Companies, on_delete=models.CASCADE)
+    worker_id = models.ForeignKey(Workers, on_delete=models.CASCADE)
+    current_skill = models.IntegerField()
+    target_skill = models.IntegerField()
+    max_skill = models.IntegerField(default=10)
+    subgroup_id = models.ForeignKey(Subgroups, on_delete=models.DO_NOTHING)
+    objects = models.Manager()
+
+class Ratings(models.Model):
+    id = models.AutoField(primary_key=True)
+    worker_id = models.ForeignKey(Workers, on_delete=models.CASCADE)
+    skill_id = models.ForeignKey(Skills, on_delete=models.CASCADE)
+    rate = models.IntegerField()
+    objects = models.Manager()
 
 @receiver(post_save, sender=CustomUser)
 def create_user_profile(sender, instance, created, **kwargs):
