@@ -58,11 +58,11 @@
                                         <td class="align-middle"><img src="{{ worker.profile_pic }}" style="width: 50px" /></td>
                                         <td class="align-middle">{{ worker.first_name }}</td>
                                         <td class="align-middle">{{ worker.last_name }}</td>
-                                        <td class="align-middle">{{ worker.position_id}}</td>
-                                        <td class="align-middle"><{{ worker.division_id }}</td>
+                                        <td class="align-middle">{{ worker.position_id.name}}</td>
+                                        <td class="align-middle">{{ worker.division_id.name }}</td>
 
                                         <td class="align-middle">
-                                            <a href="{% url "worker_profile" worker.id %}" type="button" class="btn btn-outline-success btn-top" data-toggle="tooltip"
+                                            <a href="{% url "profile_worker" worker.id %}" type="button" class="btn btn-outline-success btn-top" data-toggle="tooltip"
                                                         title="Pokaż profil"><i class="far fa-eye"></i></a>
                                             <a href=# type="button" class="btn btn-outline-secondary btn-top" data-toggle="tooltip"
                                                         title="Edytuj umiejętności"><i class="far fa-edit"></i></a>

@@ -78,10 +78,13 @@ urlpatterns = [
     path('delete_worker/<str:worker_id>', ManagerViews.delete_worker, name="delete_worker"),
     path('edit_worker/<str:worker_id>', ManagerViews.edit_worker, name="edit_worker"),
     path('edit_worker_save', ManagerViews.edit_worker_save, name="edit_worker_save"),
-    path('worker_profile/<str:worker_id>', ManagerViews.worker_profile, name="worker_profile"),
+    path('profile_worker/<str:worker_id>', ManagerViews.profile_worker, name="profile_worker"),
 
     path('manage_position', ManagerViews.manage_position, name="manage_position"),
     path('add_position_save', ManagerViews.add_position_save, name="add_position_save"),
+    path('delete_position/<str:position_id>', ManagerViews.delete_position, name="delete_position"),
+    path('unpin_position/<str:worker_id>', ManagerViews.unpin_position, name="unpin_position"),
+    path('edit_position_save', ManagerViews.edit_position_save, name="edit_position_save"),
 
 
 

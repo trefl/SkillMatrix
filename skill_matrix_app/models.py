@@ -86,7 +86,7 @@ class Workers(models.Model):
     profile_pic = models.ImageField(default='/media/default/avatar.png')
     archival = models.BooleanField(default=False)
     company_id = models.ForeignKey(Companies, on_delete=models.CASCADE)
-    position_id = models.ForeignKey(Positions, on_delete=models.CASCADE, blank=True, null=True)
+    position_id = models.ForeignKey(Positions, on_delete=models.DO_NOTHING, blank=True, null=True)
     group_id = models.ForeignKey(Groups, on_delete=models.DO_NOTHING, blank=True, null=True)
     subgroup_id = models.ForeignKey(Subgroups, on_delete=models.DO_NOTHING, blank=True, null=True)
     division_id = models.ForeignKey(Divisions, on_delete=models.DO_NOTHING, blank=True, null=True)

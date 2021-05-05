@@ -1,6 +1,7 @@
 from datetime import date
 from re import search
 
+import self as self
 from phone_field import PhoneField
 from crispy_forms import bootstrap, layout
 from crispy_forms.bootstrap import PrependedText, AppendedText
@@ -13,8 +14,9 @@ from django.forms import DateField
 
 from django.urls import reverse
 from django.utils.datetime_safe import datetime
+from urllib3 import request
 
-from skill_matrix_app.models import CustomUser, Workers
+from skill_matrix_app.models import CustomUser, Workers, Positions, Companies
 
 
 class CreateUserForm(forms.Form):
@@ -150,14 +152,20 @@ class DateInput(forms.DateInput):
 
 
 class CreateWorkerForm(forms.Form):
-    first_name = forms.CharField(label="Imię", required=True, max_length=50, widget=forms.TextInput(attrs={"class": "form-control"}))
-    second_name = forms.CharField(label="Drugie imię", required=False, max_length=50, widget=forms.TextInput(attrs={"class": "form-control"}))
-    last_name = forms.CharField(label="Nazwisko", required=True, max_length=50, widget=forms.TextInput(attrs={"class": "form-control"}))
+    first_name = forms.CharField(label="Imię", required=True, max_length=50,
+                                 widget=forms.TextInput(attrs={"class": "form-control"}))
+    second_name = forms.CharField(label="Drugie imię", required=False, max_length=50,
+                                  widget=forms.TextInput(attrs={"class": "form-control"}))
+    last_name = forms.CharField(label="Nazwisko", required=True, max_length=50,
+                                widget=forms.TextInput(attrs={"class": "form-control"}))
     birthday = forms.DateField(label="Data urodzenia", initial=date.today, widget=DateInput)
-    profile_pic = forms.FileField(label="Zdjęcie", required=False, max_length=50, widget=forms.FileInput(attrs={"class": "form-control-file", "accept": ".jpg,.gif,.png"}))
+    profile_pic = forms.FileField(label="Zdjęcie", required=False, max_length=50, widget=forms.FileInput(
+        attrs={"class": "form-control-file", "accept": ".jpg,.gif,.png"}))
     archival = forms.BooleanField(label="Archiwalny", required=False)
-    position_id = forms.ChoiceField(label="Stanowisko", required=False, widget=forms.Select(attrs={"class": "form-control"}))
-    division_id = forms.ChoiceField(label="Dział/Brygada", required=False, widget=forms.Select(attrs={"class": "form-control"}))
+    position_id = forms.ChoiceField(label="Stanowisko", required=False,
+                                    widget=forms.Select(attrs={"class": "form-control"}))
+    division_id = forms.ChoiceField(label="Dział/Brygada", required=False,
+                                    widget=forms.Select(attrs={"class": "form-control"}))
 
 
 

@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from skill_matrix_app.forms import ChangePasswordForm, CreateUserForm, CreateWorkerForm
-from skill_matrix_app.models import CustomUser, Companies, Managers, Assistants, Workers, Positions
+from skill_matrix_app.models import CustomUser, Companies, Managers, Assistants, Workers, Positions, Divisions
 from skill_matrix_app.views import send_activation_email
 
 
@@ -160,55 +160,62 @@ def manager_change_password(request):
     return render(request, "manager_template/change_password_template.html", {"form": form})
 
 def add_worker(request):
-    form = CreateWorkerForm()
+    company = Companies.objects.get(id=request.user.managers.company_id_id)
+    positions = Positions.objects.filter(company_id=company.id)
+    divisions = Divisions.objects.filter(company_id=company.id)
 
-    return render(request, 'manager_template/add_worker_template.html', {"form": form})
+    return render(request, 'manager_template/add_worker_template.html', {"positions": positions, "divisions": divisions})
 
 
 def add_worker_save(request):
     if request.method != 'POST':
         return HttpResponse("Method Not Allowed")
     else:
-        form = CreateWorkerForm(request.POST)
-        if form.is_valid():
-            first_name = request.POST.get('first_name')
-            second_name = request.POST.get('second_name')
-            last_name = request.POST.get('last_name')
-            birthday = request.POST.get('birthday')
-            archival = request.POST.get('archival')
-            position_id = request.POST.get('position_id')
-            division_id = request.POST.get('division_id')
-
-            if archival == None:
-                archival = False
-            else:
-                archival = True
+        first_name = request.POST.get('first_name')
+        second_name = request.POST.get('second_name')
+        last_name = request.POST.get('last_name')
+        birthday = request.POST.get('birthday')
+        archival = request.POST.get('archival')
+        position_id = request.POST.get('position')
+        division_id = request.POST.get('division')
 
 
+        if position_id == "0":
+            position_id = None
 
-            if request.FILES.get('profile_pic', False):
-                profile_pic = request.FILES['profile_pic']
-                fs = FileSystemStorage()
-                filename = fs.save(profile_pic.name, profile_pic)
-                profile_pic_url = fs.url(filename)
-            else:
-                profile_pic_url = None
+        if division_id == "0":
+            division_id = None
 
+        if archival == None:
+            archival = False
+        else:
+            archival = True
+
+        if request.FILES.get('profile_pic', False):
+            profile_pic = request.FILES['profile_pic']
+            fs = FileSystemStorage()
+            filename = fs.save(profile_pic.name, profile_pic)
+            profile_pic_url = fs.url(filename)
+        else:
+            profile_pic_url = None
+
+        print(profile_pic_url)
+
+        try:
             company = Companies.objects.get(id=request.user.managers.company_id_id)
+            print(company)
             worker_model = Workers(first_name=first_name, second_name=second_name, last_name=last_name, birthday=birthday, archival=archival, position_id_id=position_id, division_id_id=division_id)
             worker_model.company_id_id = company.id
             if profile_pic_url != None:
                 worker_model.profile_pic = profile_pic_url
+            print(worker_model)
             worker_model.save()
-
 
             messages.success(request, "Dodanie uzytkownika zakończone powodzeniem")
             return HttpResponseRedirect(reverse("manage_worker"))
-        else:
-            form = CreateWorkerForm(request.POST)
+        except:
             messages.error(request, "Dodanie uzytkownika zakończone niepowodzeniem")
-            return render(request, 'manager_template/add_worker_template.html', {"form": form})
-            # return HttpResponseRedirect(request("manage_assistant"))
+            return HttpResponseRedirect(request("add_worker"))
 
 
 def manage_worker(request):
@@ -232,10 +239,11 @@ def edit_worker(request, worker_id):
     request.session['worker_id'] = worker_id
     worker = Workers.objects.get(id=worker_id)
     if (worker.company_id.id == request.user.managers.company_id_id):
-        form = CreateWorkerForm()
-        return render(request, "manager_template/edit_worker_template.html", {"worker": worker, "worker_id": worker_id, "form": form})
+        company = Companies.objects.get(id=request.user.managers.company_id_id)
+        positions = Positions.objects.filter(company_id=company.id)
+        divisions = Divisions.objects.filter(company_id=company.id)
+        return render(request, "manager_template/edit_worker_template.html", {"worker": worker, "worker_id": worker_id, "positions": positions, "divisions": divisions})
     else:
-        messages.error(request, "Usunięcie pracownika nieudane")
         return HttpResponseRedirect(reverse("manage_worker"))
 
 def edit_worker_save(request):
@@ -247,31 +255,36 @@ def edit_worker_save(request):
         if worker_id is None:
             return HttpResponseRedirect(reverse("manage_worker"))
 
-        form = CreateWorkerForm(request.POST)
-        if form.is_valid():
-            first_name = request.POST.get('first_name')
-            second_name = request.POST.get('second_name')
-            last_name = request.POST.get('last_name')
-            birthday = request.POST.get('birthday')
-            archival = request.POST.get('archival')
-            position_id = request.POST.get('position_id')
-            division_id = request.POST.get('division_id')
-            print(archival)
-            if archival == None:
-                archival = False
-            else:
-                archival = True
+        first_name = request.POST.get('first_name')
+        second_name = request.POST.get('second_name')
+        last_name = request.POST.get('last_name')
+        birthday = request.POST.get('birthday')
+        archival = request.POST.get('archival')
+        position_id = request.POST.get('position')
+        division_id = request.POST.get('division')
+
+        if position_id == "0":
+            position_id = None
+
+        if division_id == "0":
+            division_id = None
+
+        if archival == None:
+            archival = False
+        else:
+            archival = True
 
 
-            if request.FILES.get('profile_pic', False):
-                profile_pic = request.FILES['profile_pic']
-                fs = FileSystemStorage()
-                filename = fs.save(profile_pic.name, profile_pic)
-                profile_pic_url = fs.url(filename)
-            else:
-                profile_pic_url = None
+        if request.FILES.get('profile_pic', False):
+            profile_pic = request.FILES['profile_pic']
+            fs = FileSystemStorage()
+            filename = fs.save(profile_pic.name, profile_pic)
+            profile_pic_url = fs.url(filename)
+        else:
+            profile_pic_url = None
 
-            # company = Companies.objects.get(id=request.user.managers.company_id_id)
+        try:
+
             worker_model = Workers.objects.get(id=worker_id)
             print(worker_model)
             temp_name = worker_model.first_name
@@ -283,25 +296,22 @@ def edit_worker_save(request):
             worker_model.archival = archival
             worker_model.position_id_id = position_id
             worker_model.division_id_id = division_id
-            # worker_model.company_id_id = company.id
             if profile_pic_url != None:
                 worker_model.profile_pic = profile_pic_url
             worker_model.save()
             del request.session['worker_id']
 
-
-            messages.success(request, "Edycja uzytkownika zakończone powodzeniem")
+            messages.success(request, "Edycja pracownika zakończone powodzeniem")
             return HttpResponseRedirect(reverse("manage_worker"))
-        else:
-            form = CreateWorkerForm(request.POST)
-            messages.error(request, "Edycja uzytkownika zakończone niepowodzeniem")
-            return render(request, 'manager_template/edit_worker_template.html', {"form": form, "id": worker_id})
+        except:
+            messages.error(request, "Edycja pracownika zakończone niepowodzeniem")
+            return render(request, 'manager_template/edit_worker_template.html')
 
 
-def worker_profile(request, worker_id):
+def profile_worker(request, worker_id):
     worker = Workers.objects.get(id=worker_id)
     if (worker.company_id.id == request.user.managers.company_id_id):
-        return render(request, "manager_template/worker_profile_template.html", {"worker": worker})
+        return render(request, "manager_template/profile_worker_template.html", {"worker": worker, "worker_id": worker_id})
     else:
         messages.error(request, "Usunięcie pracownika nieudane")
         return HttpResponseRedirect(reverse("manage_worker"))
@@ -310,8 +320,9 @@ def worker_profile(request, worker_id):
 def manage_position(request):
     company = Companies.objects.get(id=request.user.managers.company_id_id)
     positions = Positions.objects.filter(company_id=company.id)
+    workers = Workers.objects.filter(company_id=company.id).order_by('last_name')
 
-    return render(request, "manager_template/manage_position_template.html", {"positions": positions})
+    return render(request, "manager_template/manage_position_template.html", {"positions": positions, "workers": workers})
 
 def add_position_save(request):
     if request.method != 'POST':
@@ -329,3 +340,56 @@ def add_position_save(request):
             messages.error(request, "Dodanie stanowiska zakończone niepowodzeniem")
             # return render(request, 'manager_template/add_worker_template.html', {"form": form})
             return HttpResponseRedirect(request("manage_position"))
+
+def delete_position(request, position_id):
+    position = Positions.objects.get(id=position_id)
+    if (position.company_id.id == request.user.managers.company_id_id):
+        position.delete()
+        messages.success(request, "Stanowisko zostało usunięte")
+        return HttpResponseRedirect(reverse("manage_position"))
+    else:
+        messages.error(request, "Usunięcie stanowiska nieudane")
+        return HttpResponseRedirect(reverse("manage_position"))
+
+
+def unpin_position(request, worker_id):
+    worker = Workers.objects.get(id=worker_id)
+    if (worker.company_id.id == request.user.managers.company_id_id):
+        worker.position_id_id = None
+        worker.save()
+        messages.success(request, "Pracownik został pomyślnie odpięty")
+        return HttpResponseRedirect(reverse("manage_position"))
+    else:
+        messages.error(request, "Odpięcie pracownika nieudane")
+        return HttpResponseRedirect(reverse("manage_position"))
+
+
+def edit_position_save(request):
+    if request.method != "POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        position_id = request.POST.get('id')
+        name = request.POST.get('name')
+
+        try:
+            position = Positions.objects.get(id=position_id)
+            if (position.company_id.id == request.user.managers.company_id_id):
+                try:
+                    position.name = name
+                    position.save()
+                    messages.success(request, "Nazwa stanowiska została zmieniona")
+                    return HttpResponseRedirect(reverse("manage_position"))
+                except:
+                    messages.error(request, "Nazwa stanowiska nie została zmieniona")
+                    return HttpResponseRedirect(reverse("manage_position"))
+            else:
+                messages.error(request, "Nazwa stanowiska nie została zmieniona")
+                return HttpResponseRedirect(reverse("manage_position"))
+        except:
+            messages.error(request, "Nazwa stanowiska nie została zmieniona")
+            return HttpResponseRedirect(reverse("manage_position"))
+
+
+
+
+

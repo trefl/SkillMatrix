@@ -47,7 +47,9 @@
           </li>
           <li class="nav-item">
                 {% url 'manage_worker' as manage_worker %}
-            <a href="{% url 'manage_worker' %}" class="nav-link {% if request.path == manage_worker %} active {% endif %}">
+                {% url 'edit_worker' worker_id as edit_worker %}
+                {% url 'profile_worker' worker_id as profile_worker %}
+            <a href="{% url 'manage_worker' %}" class="nav-link  {% if request.path == manage_worker %} active {% endif %} {% if request.path == edit_worker %} active {% endif %} {% if request.path == profile_worker %} active {% endif %}">
               <i class="nav-icon fas fa-th"></i>
               <p>
                 Pracownicy
@@ -55,12 +57,11 @@
             </a>
           </li>
           <li class="nav-item">
-              {% url 'manage_manager' as manage_manager %}
-              {% url 'edit_manager' manager_id=id as edit_manager %}
-{#            <a href="{% url 'manage_student' %}" class="nav-link {% if request.path == manage_manager %} active {% endif %} {% if request.path == edit_manager %} active {% endif %}">#}
+              {% url 'manage_position' as manage_position %}
+            <a href="{% url 'manage_position' %}" class="nav-link {% if request.path == manage_position %} active {% endif %} ">
               <i class="nav-icon fas fa-th"></i>
               <p>
-                Manage Managers
+                Stanowiska
               </p>
             </a>
           </li>

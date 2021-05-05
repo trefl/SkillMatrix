@@ -14,7 +14,7 @@
                     <!-- general form elements -->
                     <div class="card card-secondary">
                         <div class="card-header">
-                            <h3 class="card-title">Dodaj pracownika</h3>
+                            <h3 class="card-title">Edytuj pracownika</h3>
                         </div>
                         <!-- /.card-header -->
                         <!-- form start -->
@@ -24,23 +24,24 @@
                             <div class="card-body">
 
                                 <div class="form-group">
-                                    {{ form.first_name.label }}
-                                    <input type="text" name="first_name" class="form-control" maxlength="50" required value="{{ worker.first_name }}">
+                                    <label>Imię*</label>
+                                    <input type="text" class="form-control" name="first_name"  maxlength="50" placeholder="Podaj imię" required value="{{ worker.first_name }}">
                                 </div>
                                 <div class="form-group">
-                                {{ form.second_name.label }}
-                                    <input type="text" name="second_name" class="form-control" maxlength="50" value="{{ worker.second_name }}">
+                                <label>Drugie imię</label>
+                                    <input type="text" class="form-control" name="second_name"  maxlength="50" placeholder="Podaj drugie imię" value="{{ worker.second_name }}">
                                 </div>
                                 <div class="form-group">
-                                    {{ form.last_name.label }}
-                                    <input type="text" name="last_name" class="form-control" maxlength="50" required value="{{ worker.last_name }}">
+                                    <label>Nazwisko*</label>
+                                    <input type="text" name="last_name" class="form-control" maxlength="50" placeholder="Podaj nazwisko" required value="{{ worker.last_name }}">
                                 </div>
                                 <div class="form-group">
-                                    {{ form.birthday.label }}
-                                    <input type="date" name="birthday"  required value="{{ worker.birthday|date:"Y-m-d" }}">
+                                    <label>Data urodzenia*</label>
+                                    <input type="date" name="birthday" class="form-control"  required value="{{ worker.birthday|date:"Y-m-d" }}">
                                 </div>
                                 <div class="form-group">
-                                    {{ form.archival.label }}
+                                    <label>Pracownik archiwalny</label>
+                                    <br>
                                     {% if worker.archival == True %}
                                         <input type="checkbox" name="archival" checked>
                                     {% else %}
@@ -48,17 +49,29 @@
                                     {% endif %}
                                 </div>
                                 <div class="form-group">
-                                    {{ form.position_id.label }}
-                                    <select name="position_id" class="form-control" id="id_position_id">{{ worker.position_id }}</select>
+                                    <label>Stanowisko</label>
+                                    <select class="form-control" name="position">
+                                    <option value=0>Wybierz stanowisko</option>
+                                        {% for position in positions %}
+                                        <option value="{{ position.id }}" {% if position.id == worker.position_id.id %} selected {% endif %}>{{ position.name }}</option>
+                                        {% endfor %}
+
+                                    </select>
                                 </div>
                                 <div class="form-group">
-                                    {{ form.division_id.label }}
-                                    {{ form.division_id }}
+                                    <label>Dział/Brygada</label>
+                                    <select class="form-control" name="division">
+                                    <option value=0 >Wybierz dział/brygadę</option>
+                                        {% for division in divisions %}
+                                        <option value="{{ division.id }}" {% if division.id == worker.division_id.id %} selected {% endif %}>{{ division.name }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                                 <div class="form-group">
-                                    {{ form.profile_pic.label }}
-                                    {{ form.profile_pic }}
-{#                                    <input class="form-control-file" name="profile_pic" type="file" accept=".jpg,.gif,.png">#}
+                                    <div class="form-group">
+                                    <label>Zdjęcie</label>
+                                    <input type="file" name="profile_pic" class="form-control-file" accept="jpg, gif, png">
+                                </div>
                                 </div>
 
                             </div>

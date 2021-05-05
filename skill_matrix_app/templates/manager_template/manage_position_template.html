@@ -22,7 +22,7 @@
                             {% endfor %}
                         {% endif %}
                     </div>
-                    <form role="form" action="/add_position_save" method="post" enctype="multipart/form-data">
+                    <form role="form" action="/add_position_save" method="post">
 
                     <div class="row justify-content-center">
                         <div class="input-group input-group col-8">
@@ -41,9 +41,11 @@
 
 
             </div>
+        <br>
         </div>
     <div class="row">
-        <br><br>
+        <br>
+
     </div>
 
     </section>
@@ -77,52 +79,61 @@
             <div class="row justify-content-center">
                 <div class="col-8">
                     <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">{{ position.name }}</h3>
-
+                        <div class="card-header border">
+                            <h3 class="card-title "><b>{{ position.name }}</b></h3>
                             <div class="card-tools">
-                                <div class="input-group input-group-sm" style="width: 150px;">
-                                    <div class="input-group-append">
+                                    <div >
+                                            <button type="button" class="btn btn-outline-secondary btn-sm btn-top" data-toggle="modal" data-target="#pinWorkerModal" title="Przypisz pracownika">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-warning btn-sm btn-top" data-toggle="modal" data-target="#editModal" title="Edytuj nazwę"
+                                            data-id="{{ position.id }}"
+                                                        data-name="{{ position.name }}">
+                                                <i class="fas fa-pencil-alt"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger btn-sm btn-top" data-toggle="modal"
+                                                        data-target="#deleteModal" data-toggle="tooltip"
+                                            title="Usuń stanowisko"
+                                                        data-id="{{ position.id }}"
+                                                        data-name="{{ position.name }}">
+
+                                                <i class="fa fa-trash"></i>
+                                            </button>
                                     </div>
-                                </div>
                             </div>
-                        </div>
                         <!-- /.card-header -->
+
                         <div class="card-body table-responsive p-0">
-                            <table class="table table-hover text-nowrap ">
-                                <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>Imię</th>
-                                    <th>Nazwisko</th>
-                                    <th>Email</th>
-                                    <th>Ostatnie logowanie</th>
-                                </tr>
-                                </thead>
-                                {#                                <tbody>#}
-                                {##}
-                                {#                                {% for assistant in assistants %}#}
-                                {#                                    <tr>#}
-                                {#                                        <td class="align-middle"><img src="{{ assistant.profile_pic }}" style="width: 50px" /></td>#}
-                                {#                                        <td class="align-middle">{{ assistant.admin.first_name }}</td>#}
-                                {#                                        <td class="align-middle">{{ assistant.admin.last_name }}</td>#}
-                                {#                                        <td class="align-middle">{{ assistant.admin.email }}</td>#}
-                                {#                                        <td class="align-middle">{{ assistant.admin.last_login |date:"d-m-Y"  }}</td>#}
-                                {#                                        <td class="align-middle">{{ assistant.company_id.id }}</td>#}
-                                {##}
-                                {#                                        <td class="align-middle">#}
-                                {#                                            <button type="button" class="btn btn-danger" data-toggle="modal"#}
-                                {#                                                        data-target="#deleteModal" data-id="{{ assistant.admin.id }}"#}
-                                {#                                                        data-first_name="{{ assistant.admin.first_name }}"#}
-                                {#                                                        data-last_name="{{ assistant.admin.last_name }}">Usuń#}
-                                {#                                            </button>#}
-                                {#                                        </td>#}
-                                {##}
-                                {#                                    </tr>#}
-                                {#                                {% endfor %}#}
-                                {##}
-                                {##}
-                                {#                                </tbody>#}
+                            <table class="table  table-hover text-nowrap ">
+
+
+                                                                <tbody>
+
+
+                                                                {% for worker in workers %}
+                                                                    {% if worker.position_id.id == position.id %}
+                                                                    <tr>
+                                                                        <td class="align-middle"><img src="{{ worker.profile_pic }}" style="width: 50px" /></td>
+                                                                        <td class="align-middle">{{ worker.first_name }}</td>
+                                                                        <td class="align-middle">{{ worker.last_name }}</td>
+
+
+                                                                        <td class="align-middle">
+                                                                            <button type="button" class="btn btn-warning" data-toggle="modal"
+                                                                                        data-target="#unpinModal" data-id="{{ worker.id }}"
+                                                                                        data-first_name="{{ worker.first_name }}"
+                                                                                        data-last_name="{{ worker.last_name }}"
+                                                                                        data-name="{{ position.name }}"
+                                                                            >Odepnij
+                                                                            </button>
+                                                                        </td>
+
+                                                                    </tr>
+                                                                    {% endif %}
+                                                                {% endfor %}
+
+
+                                                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -138,7 +149,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Usuwanie użytkownika</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Usuwanie stanowiska</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -153,10 +164,103 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form role="form" action="/edit_position_save" method="post">
+                         {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Edycja</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="form-group">
+                            <label>Nazwa</label>
+                            <input type="text" class="form-control" name="name"  maxlength="50" placeholder="Podaj nazwę">
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                            <input type="hidden" name="id">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Anuluj</button>
+                        <button type="submit" class="btn btn-outline-success">Potwierdź</button>
+                    </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="pinWorkerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form role="form" action="/edit_position_save" method="post">
+                         {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Edycja</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="form-group">
+                            <label>Stanowisko</label>
+                                    <select class="form-control" name="position">
+                                    <option value=0>Wybierz pracownika</option>
+                                        {% for worker in workers %}
+                                        <option value="{{ worker.id }}">{{ worker.first_name }} {{ worker.last_name }}  {% if worker.position_id.id != None %}  --  {{ worker.position_id.name }}{% endif %}</option>
+                                        {% endfor %}
+
+                                    </select>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                            <input type="hidden" name="id">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Anuluj</button>
+                        <button type="submit" class="btn btn-outline-success">Potwierdź</button>
+                    </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="unpinModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Odpinanie pracownika</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="p1"></p>
+                        <p class="p2"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Anuluj</button>
+                        <a type="button" class="btn btn-outline-danger">Potwierdź</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <!--Modal-->
+
+    <!--End Modal-->
 
 
     </section>
+        <br>
                 {% endfor %}
+
 
     <!-- /.content -->
 {% endblock main_content %}
@@ -166,15 +270,50 @@
 
             $('#deleteModal').on('show.bs.modal', function (event) {
                 let button = $(event.relatedTarget); // Button that triggered the modal
-                let assistant_id = button.data('id');
-                let assistant_first_name = button.data('first_name');
-                let assistant_last_name = button.data('last_name');
+                let position_id = button.data('id');
+                let position_name = button.data('name');
 
                 let modal = $(this)
 
-                modal.find('.modal-body p').text("Czy chcesz usunąć użytkownika " + assistant_first_name + " " + assistant_last_name + " ?");
-                modal.find('.btn-outline-danger').attr("href", "/delete_assistant/" + assistant_id);
+                modal.find('.modal-body p').text("Czy chcesz usunąć stanowisko: " + position_name +" ?");
+                modal.find('.btn-outline-danger').attr("href", "/delete_position/" + position_id);
             });
+            $('#editModal').on('show.bs.modal', function (event) {
+                let button = $(event.relatedTarget); // Button that triggered the modal
+                let position_id = button.data('id');
+                let position_name = button.data('name');
+
+                let modal = $(this)
+                modal.find('.modal-body input').val(position_name)
+                modal.find('.modal-footer input').val(position_id)
+            });
+            $('#pinWorkerModal').on('show.bs.modal', function (event) {
+                let button = $(event.relatedTarget); // Button that triggered the modal
+                {#let position_id = button.data('id');#}
+                {#let position_name = button.data('name');#}
+
+                let modal = $(this)
+                {#modal.find('.modal-body input').val(position_name)#}
+                {#modal.find('.modal-footer input').val(position_id)#}
+            });
+            $('#unpinModal').on('show.bs.modal', function (event) {
+                let button = $(event.relatedTarget); // Button that triggered the modal
+                let worker_id = button.data('id');
+                let worker_first_name = button.data('first_name');
+                let worker_last_name = button.data('last_name');
+                let position_name = button.data('name')
+
+                let modal = $(this)
+
+                modal.find('.p1').text("Czy chcesz odpiąć od  stanowiska " + position_name);
+                modal.find('.p2').text(" pracownika " + worker_first_name + " " + worker_last_name + " ?");
+                modal.find('.btn-outline-danger').attr("href", "/unpin_position/" + worker_id);
+            });
+
+            $(".btn-top").tooltip({
+                placement : 'top'
+            });
+
 
         });
     </script>

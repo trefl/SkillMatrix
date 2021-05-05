@@ -24,36 +24,53 @@
                             <div class="card-body">
 
                                 <div class="form-group">
-                                    {{ form.first_name.label }}
-                                    {{ form.first_name }}
+                                    <label>Imię*</label>
+                                    <input type="text" class="form-control" name="first_name" maxlength="50" placeholder="Podaj imię" required >
+
                                 </div>
                                 <div class="form-group">
-                                {{ form.second_name.label }}
-                                    {{ form.second_name }}
+                                    <label>Drugie imię</label>
+                                    <input type="text" class="form-control" name="second_name" maxlength="50" placeholder="Podaj drugie imię" >
+
                                 </div>
                                 <div class="form-group">
-                                    {{ form.last_name.label }}
-                                    {{ form.last_name }}
+                                    <label>Nazwisko*</label>
+                                    <input type="text" class="form-control" name="last_name" maxlength="50" placeholder="Podaj nazwisko" required>
+
                                 </div>
                                 <div class="form-group">
-                                {{ form.birthday.label }}
-                                    {{ form.birthday }}
+                                    <label>Data urodzenia*</label>
+                                    <input type="date" name="birthday" required class="form-control" placeholder="Data">
+
                                 </div>
                                 <div class="form-group">
-                                    {{ form.archival.label }}
-                                    {{ form.archival }}
+                                    <label>Pracownik archiwalny</label>
+                                    <br>
+                                    <input type="checkbox" name="archival">
                                 </div>
                                 <div class="form-group">
-                                    {{ form.position_id.label }}
-                                    {{ form.position_id }}
+                                    <label>Stanowisko</label>
+                                    <select class="form-control" name="position">
+                                    <option value=0>Wybierz stanowisko</option>
+                                        {% for position in positions %}
+                                        <option value="{{ position.id }}">{{ position.name }}</option>
+                                        {% endfor %}
+
+                                    </select>
+
                                 </div>
                                 <div class="form-group">
-                                    {{ form.division_id.label }}
-                                    {{ form.division_id }}
+                                    <label>Dział/Brygada</label>
+                                    <select class="form-control" name="division">
+                                    <option value=0 selected="selected">Wybierz dział/brygadę</option>
+                                        {% for division in divisions %}
+                                        <option value="{{ division.id }}">{{ division.name }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                                 <div class="form-group">
-                                    {{ form.profile_pic.label }}
-                                    {{ form.profile_pic }}
+                                    <label>Zdjęcie</label>
+                                    <input type="file" name="profile_pic" class="form-control-file" accept="jpg, gif, png">
                                 </div>
 
                             </div>
