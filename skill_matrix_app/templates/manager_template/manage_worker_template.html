@@ -29,7 +29,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Pracownicy</h3>
+                            <h3 class="card-title"><b>Pracownicy</b></h3>
 
                             <div class="card-tools">
                                 <div class="input-group input-group-sm" style="width: 150px;">
@@ -61,7 +61,7 @@
                                         <td class="align-middle">{{ worker.position_id.name}}</td>
                                         <td class="align-middle">{{ worker.division_id.name }}</td>
 
-                                        <td class="align-middle">
+                                        <td class="align-middle text-right">
                                             <a href="{% url "profile_worker" worker.id %}" type="button" class="btn btn-outline-success btn-top" data-toggle="tooltip"
                                                         title="Pokaż profil"><i class="far fa-eye"></i></a>
                                             <a href=# type="button" class="btn btn-outline-secondary btn-top" data-toggle="tooltip"

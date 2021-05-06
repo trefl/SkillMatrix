@@ -66,11 +66,11 @@
             </a>
           </li>
           <li class="nav-item">
-              {% url 'add_course' as add_course %}
-{#            <a href="{% url 'add_course' %}" class="nav-link {% if request.path == add_course %} active {% endif %}">#}
+              {% url 'manage_division' as manage_division %}
+            <a href="{% url 'manage_division' %}" class="nav-link {% if request.path == manage_division %} active {% endif %}">
               <i class="nav-icon fas fa-th"></i>
               <p>
-                Add Course
+                Działy/Brygady
               </p>
             </a>
           </li>

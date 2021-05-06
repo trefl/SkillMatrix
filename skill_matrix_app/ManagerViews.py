@@ -251,7 +251,6 @@ def edit_worker_save(request):
         return HttpResponse("<h2>Method Not Allowed</h2>")
     else:
         worker_id = request.session.get("worker_id")
-        print("1: ", worker_id)
         if worker_id is None:
             return HttpResponseRedirect(reverse("manage_worker"))
 
@@ -269,11 +268,10 @@ def edit_worker_save(request):
         if division_id == "0":
             division_id = None
 
-        if archival == None:
+        if archival is None:
             archival = False
         else:
             archival = True
-
 
         if request.FILES.get('profile_pic', False):
             profile_pic = request.FILES['profile_pic']
@@ -284,7 +282,6 @@ def edit_worker_save(request):
             profile_pic_url = None
 
         try:
-
             worker_model = Workers.objects.get(id=worker_id)
             print(worker_model)
             temp_name = worker_model.first_name
@@ -320,7 +317,7 @@ def profile_worker(request, worker_id):
 def manage_position(request):
     company = Companies.objects.get(id=request.user.managers.company_id_id)
     positions = Positions.objects.filter(company_id=company.id)
-    workers = Workers.objects.filter(company_id=company.id).order_by('last_name')
+    workers = Workers.objects.filter(company_id=company.id).order_by('last_name').exclude(archival=True)
 
     return render(request, "manager_template/manage_position_template.html", {"positions": positions, "workers": workers})
 
@@ -342,24 +339,32 @@ def add_position_save(request):
             return HttpResponseRedirect(request("manage_position"))
 
 def delete_position(request, position_id):
-    position = Positions.objects.get(id=position_id)
-    if (position.company_id.id == request.user.managers.company_id_id):
-        position.delete()
-        messages.success(request, "Stanowisko zostało usunięte")
-        return HttpResponseRedirect(reverse("manage_position"))
-    else:
+    try:
+        position = Positions.objects.get(id=position_id)
+        if (position.company_id.id == request.user.managers.company_id_id):
+            position.delete()
+            messages.success(request, "Stanowisko zostało usunięte")
+            return HttpResponseRedirect(reverse("manage_position"))
+        else:
+            messages.error(request, "Usunięcie stanowiska nieudane")
+            return HttpResponseRedirect(reverse("manage_position"))
+    except:
         messages.error(request, "Usunięcie stanowiska nieudane")
         return HttpResponseRedirect(reverse("manage_position"))
 
 
-def unpin_position(request, worker_id):
-    worker = Workers.objects.get(id=worker_id)
-    if (worker.company_id.id == request.user.managers.company_id_id):
-        worker.position_id_id = None
-        worker.save()
-        messages.success(request, "Pracownik został pomyślnie odpięty")
-        return HttpResponseRedirect(reverse("manage_position"))
-    else:
+def unpin_from_position(request, worker_id):
+    try:
+        worker = Workers.objects.get(id=worker_id)
+        if (worker.company_id.id == request.user.managers.company_id_id):
+            worker.position_id_id = None
+            worker.save()
+            messages.success(request, "Pracownik został pomyślnie odpięty")
+            return HttpResponseRedirect(reverse("manage_position"))
+        else:
+            messages.error(request, "Odpięcie pracownika nieudane")
+            return HttpResponseRedirect(reverse("manage_position"))
+    except:
         messages.error(request, "Odpięcie pracownika nieudane")
         return HttpResponseRedirect(reverse("manage_position"))
 
@@ -390,6 +395,135 @@ def edit_position_save(request):
             return HttpResponseRedirect(reverse("manage_position"))
 
 
+def pin_to_position(request):
+    if request.method != "POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        worker_id = request.POST.get('worker_id')
+        position_id = request.POST.get('id')
+        try:
+            worker = Workers.objects.get(id=worker_id)
+            position = Positions.objects.get(id=position_id)
+            if (position.company_id.id == request.user.managers.company_id_id & worker.company_id.id == request.user.managers.company_id_id):
+                try:
+                    worker.position_id_id = position_id
+                    worker.save()
+                    messages.success(request, "Pracownik został przypięty")
+                    return HttpResponseRedirect(reverse("manage_position"))
+                except:
+                    messages.error(request, "Przypięcie pracownika nieudane")
+                    return HttpResponseRedirect(reverse("manage_position"))
+            else:
+                messages.error(request, "Przypięcie pracownika nieudane")
+                return HttpResponseRedirect(reverse("manage_position"))
+        except:
+            messages.error(request, "Przypięcie pracownika nieudane")
+            return HttpResponseRedirect(reverse("manage_position"))
 
 
+def manage_division(request):
+    company = Companies.objects.get(id=request.user.managers.company_id_id)
+    divisions = Divisions.objects.filter(company_id=company.id)
+    workers = Workers.objects.filter(company_id=company.id).order_by('last_name').exclude(archival=True)
 
+    return render(request, "manager_template/manage_division_template.html", {"divisions": divisions, "workers": workers})
+
+
+def add_division_save(request):
+    if request.method != 'POST':
+        return HttpResponse("Method Not Allowed")
+    else:
+        name = request.POST.get('name')
+        try:
+            company = Companies.objects.get(id=request.user.managers.company_id_id)
+            division_model = Divisions(name=name, company_id_id=company.id)
+            division_model.save()
+
+            messages.success(request, "Dodanie działu zakończone powodzeniem")
+            return HttpResponseRedirect(reverse("manage_division"))
+        except:
+            messages.error(request, "Dodanie działu zakończone niepowodzeniem")
+            return HttpResponseRedirect(request("manage_division"))
+
+
+def delete_division(request, division_id):
+    try:
+        division = Divisions.objects.get(id=division_id)
+        if (division.company_id.id == request.user.managers.company_id_id):
+            division.delete()
+            messages.success(request, "Dział został usunięty")
+            return HttpResponseRedirect(reverse("manage_division"))
+        else:
+            messages.error(request, "Usunięcie działu nieudane")
+            return HttpResponseRedirect(reverse("manage_division"))
+    except:
+        messages.error(request, "Usunięcie działu nieudane")
+        return HttpResponseRedirect(reverse("manage_division"))
+
+
+def unpin_from_division(request, worker_id):
+    try:
+        worker = Workers.objects.get(id=worker_id)
+        if (worker.company_id.id == request.user.managers.company_id_id):
+            worker.division_id_id = None
+            worker.save()
+            messages.success(request, "Pracownik został pomyślnie odpięty")
+            return HttpResponseRedirect(reverse("manage_division"))
+        else:
+            messages.error(request, "Odpięcie pracownika nieudane")
+            return HttpResponseRedirect(reverse("manage_division"))
+    except:
+        messages.error(request, "Odpięcie pracownika nieudane")
+        return HttpResponseRedirect(reverse("manage_division"))
+
+
+def edit_division_save(request):
+    if request.method != "POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        division_id = request.POST.get('id')
+        name = request.POST.get('name')
+
+        try:
+            division = Divisions.objects.get(id=division_id)
+            if (division.company_id.id == request.user.managers.company_id_id):
+                try:
+                    division.name = name
+                    division.save()
+                    messages.success(request, "Nazwa działu została zmieniona")
+                    return HttpResponseRedirect(reverse("manage_division"))
+                except:
+                    messages.error(request, "Nazwa działu nie została zmieniona")
+                    return HttpResponseRedirect(reverse("manage_division"))
+            else:
+                messages.error(request, "Nazwa działu nie została zmieniona")
+                return HttpResponseRedirect(reverse("manage_division"))
+        except:
+            messages.error(request, "Nazwa działu nie została zmieniona")
+            return HttpResponseRedirect(reverse("manage_division"))
+
+
+def pin_to_division(request):
+    if request.method != "POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        worker_id = request.POST.get('worker_id')
+        division_id = request.POST.get('id')
+        try:
+            worker = Workers.objects.get(id=worker_id)
+            division = Divisions.objects.get(id=division_id)
+            if (division.company_id.id == request.user.managers.company_id_id & worker.company_id.id == request.user.managers.company_id_id):
+                try:
+                    worker.division_id_id = division_id
+                    worker.save()
+                    messages.success(request, "Pracownik został przypięty")
+                    return HttpResponseRedirect(reverse("manage_division"))
+                except:
+                    messages.error(request, "Przypięcie pracownika nieudane")
+                    return HttpResponseRedirect(reverse("manage_division"))
+            else:
+                messages.error(request, "Przypięcie pracownika nieudane")
+                return HttpResponseRedirect(reverse("manage_division"))
+        except:
+            messages.error(request, "Przypięcie pracownika nieudane")
+            return HttpResponseRedirect(reverse("manage_division"))

@@ -83,8 +83,18 @@ urlpatterns = [
     path('manage_position', ManagerViews.manage_position, name="manage_position"),
     path('add_position_save', ManagerViews.add_position_save, name="add_position_save"),
     path('delete_position/<str:position_id>', ManagerViews.delete_position, name="delete_position"),
-    path('unpin_position/<str:worker_id>', ManagerViews.unpin_position, name="unpin_position"),
+    path('unpin_from_position/<str:worker_id>', ManagerViews.unpin_from_position, name="unpin_from_position"),
     path('edit_position_save', ManagerViews.edit_position_save, name="edit_position_save"),
+    path('pin_to_position', ManagerViews.pin_to_position, name="pin_to_position"),
+
+
+    path('manage_division', ManagerViews.manage_division, name="manage_division"),
+    path('add_division_save', ManagerViews.add_division_save, name="add_division_save"),
+    path('delete_division/<str:division_id>', ManagerViews.delete_division, name="delete_division"),
+    path('unpin_from_division/<str:worker_id>', ManagerViews.unpin_from_division, name="unpin_from_division"),
+    path('edit_division_save', ManagerViews.edit_division_save, name="edit_division_save"),
+    path('pin_to_division', ManagerViews.pin_to_division, name="pin_to_division"),
+
 
 
 
