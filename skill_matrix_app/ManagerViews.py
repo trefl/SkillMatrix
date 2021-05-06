@@ -457,7 +457,7 @@ def delete_division(request, division_id):
             messages.error(request, "Usunięcie działu nieudane")
             return HttpResponseRedirect(reverse("manage_division"))
     except:
-        messages.error(request, "Usunięcie działu nieudane")
+        messages.error(request, "Usunięcie działu nieudane. Najpierw odepnij pracowników")
         return HttpResponseRedirect(reverse("manage_division"))
 
 
