@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from skill_matrix_app.forms import ChangePasswordForm, CreateUserForm, CreateWorkerForm
-from skill_matrix_app.models import CustomUser, Companies, Managers, Assistants, Workers, Positions, Divisions
+from skill_matrix_app.models import CustomUser, Companies, Managers, Assistants, Workers, Positions, Divisions, Skills
 from skill_matrix_app.views import send_activation_email
 
 
@@ -349,7 +349,7 @@ def delete_position(request, position_id):
             messages.error(request, "Usunięcie stanowiska nieudane")
             return HttpResponseRedirect(reverse("manage_position"))
     except:
-        messages.error(request, "Usunięcie stanowiska nieudane")
+        messages.error(request, "Usunięcie stanowiska nieudane. Najpierw odepnij pracowników")
         return HttpResponseRedirect(reverse("manage_position"))
 
 
@@ -527,3 +527,70 @@ def pin_to_division(request):
         except:
             messages.error(request, "Przypięcie pracownika nieudane")
             return HttpResponseRedirect(reverse("manage_division"))
+
+
+
+def manage_skill(request):
+    company = Companies.objects.get(id=request.user.managers.company_id_id)
+    skills = Skills.objects.filter(company_id=company.id)
+
+    return render(request, "manager_template/manage_skill_template.html", {"skills": skills})
+
+
+def add_skill_save(request):
+    if request.method != 'POST':
+        return HttpResponse("Method Not Allowed")
+    else:
+        name = request.POST.get('name')
+        print(name)
+        try:
+            company = Companies.objects.get(id=request.user.managers.company_id_id)
+            skill_model = Skills(name=name, company_id_id=company.id)
+            skill_model.save()
+
+            messages.success(request, "Dodanie umiejętności zakończone powodzeniem")
+            return HttpResponseRedirect(reverse("manage_skill"))
+        except:
+            messages.error(request, "Dodanie umiejętności zakończone niepowodzeniem")
+            return HttpResponseRedirect(request("manage_skill"))
+
+
+def delete_skill(request, skill_id):
+    try:
+        skill = Skills.objects.get(id=skill_id)
+        if (skill.company_id.id == request.user.managers.company_id_id):
+            skill.delete()
+            messages.success(request, "Umiejętność została usunięta")
+            return HttpResponseRedirect(reverse("manage_skill"))
+        else:
+            messages.error(request, "Usunięcie umiejętności nieudane")
+            return HttpResponseRedirect(reverse("manage_skill"))
+    except:
+        messages.error(request, "Usunięcie umiejętności nieudane.")
+        return HttpResponseRedirect(reverse("manage_skill"))
+
+
+def edit_skill_save(request):
+    if request.method != "POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        skill_id = request.POST.get('id')
+        name = request.POST.get('name')
+
+        try:
+            skill = Skills.objects.get(id=skill_id)
+            if (skill.company_id.id == request.user.managers.company_id_id):
+                try:
+                    skill.name = name
+                    skill.save()
+                    messages.success(request, "Nazwa umiejętności została zmieniona")
+                    return HttpResponseRedirect(reverse("manage_skill"))
+                except:
+                    messages.error(request, "Nazwa umiejętności nie została zmieniona")
+                    return HttpResponseRedirect(reverse("manage_skill"))
+            else:
+                messages.error(request, "Nazwa umiejętności nie została zmieniona")
+                return HttpResponseRedirect(reverse("manage_skill"))
+        except:
+            messages.error(request, "Nazwa umiejętności nie została zmieniona")
+            return HttpResponseRedirect(reverse("manage_skill"))

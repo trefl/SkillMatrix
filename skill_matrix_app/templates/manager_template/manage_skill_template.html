@@ -1,0 +1,202 @@
+{% extends 'manager_template/base_template.html' %}
+
+{% block page_title %}
+{% endblock page_title %}
+{% block main_content %}
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <br>
+            <div class="row justify-content-center">
+                <div class="col-8">
+                    <div class="form-group">
+                        {% if messages %}
+                            {% for message in messages %}
+                                {% if message.tags == 'error' %}
+                                    <div class="alert alert-danger" style="margin-top:10px">{{ message }}</div>
+                                {% endif %}
+                                {% if message.tags == 'success' %}
+                                    <div class="alert alert-success" style="margin-top:10px">{{ message }}</div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <form role="form" action="/add_skill_save" method="post">
+
+                        <div class="row justify-content-center">
+                            <div class="input-group input-group ">
+
+                                {% csrf_token %}
+                                <input type="text" class="form-control" name="name" required
+                                       placeholder="Dodaj umiejętność">
+                                <span class="input-group-append">
+                                    <button type="submit" class="btn btn-info btn-fat">Dodaj</button>
+                                </span>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <br>
+        </div>
+    </section>
+    <section class="content">
+        <div class="container-fluid">
+            {% csrf_token %}
+            <div class="row justify-content-center">
+                <div class="col-8">
+                    <div class="card">
+                        <div class="card-header border">
+                            <h3 class="card-title "><b>Umiejętności</b></h3>
+                            <div class="card-tools">
+                                <div class="text-center">
+
+
+                                </div>
+                                <br>
+                            </div>
+
+                            <!-- /.card-header -->
+                            <div class="card-body table-responsive p-0">
+                                <table class="table  table-hover text-nowrap ">
+                                <thead>
+                                <tr>
+                                    <th> </th>
+                                    <th>Lp.</th>
+                                    <th  class=>Nazwa</th>
+
+                                </tr>
+                                </thead>
+                                    <tbody>
+                                    {% for skill in skills %}
+                                        <tr>
+                                            <td> </td>
+                                            <td>{{ forloop.counter}}.</td>
+                                            <td class="align-middle">{{ skill.name }}</td>
+                                            <td class="align-middle text-right">
+                                                <button type="button" class="btn btn-outline-warning btn-sm btn-top"
+                                                        data-toggle="modal" data-target="#editModal"
+                                                        title="Edytuj umiejętność"
+                                                        data-id="{{ skill.id }}"
+                                                        data-name="{{ skill.name }}">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger btn-sm btn-top"
+                                                        data-toggle="modal"
+                                                        data-target="#deleteModal" data-toggle="tooltip"
+                                                        title="Usuń umiejętność"
+                                                        data-id="{{ skill.id }}"
+                                                        data-name="{{ skill.name }}">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Usuwanie umiejętności</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Anuluj
+                            </button>
+                            <a type="button" class="btn btn-outline-danger">Potwierdź</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <form role="form" action="/edit_skill_save" method="post">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Edycja umiejętności</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>Nazwa</label>
+                                    <input type="text" class="form-control" name="name" maxlength="50"
+                                           placeholder="Podaj nazwę">
+
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="hidden" name="id">
+                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                                    Anuluj
+                                </button>
+                                <button type="submit" class="btn btn-outline-success">Potwierdź</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+    </section>
+    <br>
+
+
+    <!-- /.content -->
+{% endblock main_content %}
+{% block custom_js %}
+    <script>
+        $(document).ready(function () {
+
+            $('#deleteModal').on('show.bs.modal', function (event) {
+                let button = $(event.relatedTarget);
+                let skill_id = button.data('id');
+                let skill_name = button.data('name');
+
+                let modal = $(this)
+
+                modal.find('.modal-body p').text("Czy chcesz usunąć umiejętność: " + skill_name + " ?");
+                modal.find('.btn-outline-danger').attr("href", "/delete_skill/" + skill_id);
+            });
+            $('#editModal').on('show.bs.modal', function (event) {
+                let button = $(event.relatedTarget); // Button that triggered the modal
+                let division_id = button.data('id');
+                let division_name = button.data('name');
+
+                let modal = $(this)
+                modal.find('.modal-body input').val(division_name)
+                modal.find('.modal-footer input').val(division_id)
+            });
+
+            $(".btn-top").tooltip({
+                placement: 'top'
+            });
+            $(".btn-left").tooltip({
+                placement: 'left'
+            });
+        });
+    </script>
+{% endblock custom_js %}

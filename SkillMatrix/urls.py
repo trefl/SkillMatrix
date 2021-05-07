@@ -96,6 +96,12 @@ urlpatterns = [
     path('pin_to_division', ManagerViews.pin_to_division, name="pin_to_division"),
 
 
+    path('manage_skill', ManagerViews.manage_skill, name="manage_skill"),
+    path('add_skill_save', ManagerViews.add_skill_save, name="add_skill_save"),
+    path('delete_skill/<str:skill_id>', ManagerViews.delete_skill, name="delete_skill"),
+    path('edit_skill_save', ManagerViews.edit_skill_save, name="edit_skill_save"),
+
+
 
 
 

@@ -99,11 +99,7 @@ class Skills(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     company_id = models.ForeignKey(Companies, on_delete=models.CASCADE)
-    worker_id = models.ForeignKey(Workers, on_delete=models.CASCADE)
-    current_skill = models.IntegerField()
-    target_skill = models.IntegerField()
-    max_skill = models.IntegerField(default=10)
-    subgroup_id = models.ForeignKey(Subgroups, on_delete=models.DO_NOTHING)
+    subgroup_id = models.ForeignKey(Subgroups, on_delete=models.DO_NOTHING, blank=True, null=True)
     objects = models.Manager()
 
 class Ratings(models.Model):

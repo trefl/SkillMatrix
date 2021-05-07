@@ -75,12 +75,11 @@
             </a>
           </li>
           <li class="nav-item">
-              {% url 'manage_course' as manage_course %}
-              {% url 'edit_course' course_id=id as edit_course %}
-{#            <a href="{% url 'manage_course' %}" class="nav-link {% if request.path == manage_course %} active {% endif %} {% if request.path == edit_course %} active {% endif %}">#}
+              {% url 'manage_skill' as manage_skill %}
+                          <a href="{% url 'manage_skill' %}" class="nav-link {% if request.path == manage_skill %} active {% endif %}">
               <i class="nav-icon fas fa-th"></i>
               <p>
-                Manage Course
+                Umiejętności
               </p>
             </a>
           </li>

@@ -52,7 +52,7 @@
                                 <h3 class="card-title "><b>{{ position.name }}</b></h3>
                                 <div class="card-tools">
                                     <div class="text-center">
-                                        <button type="button" class="btn btn-outline-secondary btn-sm btn-top"
+                                        <button type="button" class="btn btn-outline-success btn-sm btn-top"
                                                 data-toggle="modal" data-target="#pinWorkerModal"
                                                 title="Przypisz pracownika"
                                                 data-id="{{ position.id }}">
@@ -74,6 +74,7 @@
                                             <i class="fa fa-trash"></i>
                                         </button>
                                     </div>
+                                    <br>
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body table-responsive p-0">
@@ -90,7 +91,7 @@
 
                                                     <td class="align-middle text-right">
                                                         <button type="button"
-                                                                class="btn btn-outline-danger btn-sm btn-left"
+                                                                class="btn btn-outline-secondary btn-sm btn-left"
                                                                 data-toggle="modal" title="Odepnij pracownika"
                                                                 data-target="#unpinWorkerModal"
                                                                 data-id="{{ worker.id }}"
