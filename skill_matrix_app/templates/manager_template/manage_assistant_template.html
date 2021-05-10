@@ -23,7 +23,7 @@
 
         <!-- /.card -->
     </section>
-
+<br>
     <!--Modal-->
     <form role="form" action="/add_assistant_save" method="post">
         {% csrf_token %}
@@ -160,7 +160,6 @@
                 modal.find('.modal-body p').text("Czy chcesz usunąć użytkownika " + assistant_first_name + " " + assistant_last_name + " ?");
                 modal.find('.btn-outline-danger').attr("href", "/delete_assistant/" + assistant_id);
             });
-
         });
     </script>
 {% endblock custom_js %}

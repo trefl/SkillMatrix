@@ -2,87 +2,135 @@
 {% block page_title %}
 {% endblock page_title %}
 {% block main_content %}
-     <div class="col-lg-12">
-            {% if messages %}
-                {%  for message in messages %}
-                    {% if message.tags == 'error' %}
-                        <div class="alert alert-danger" style="margin-top:10px">{{ message }}</div>
-                    {% endif %}
-                    {% if message.tags == 'success' %}
-                        <div class="alert alert-success" style="margin-top:10px">{{ message }}</div>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-          </div>
-<div class="container bootstrap snippets bootdey">
+    <div class="col-lg-12">
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                    <div class="alert alert-danger" style="margin-top:10px">{{ message }}</div>
+                {% endif %}
+                {% if message.tags == 'success' %}
+                    <div class="alert alert-success" style="margin-top:10px">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="container bootstrap snippets bootdey">
 
     <h2 class="text-info"><span class="glyphicon glyphicon-user"></span>Profil</h2>
-      <hr>
-	<div class="row">
-      <!-- left column -->
-      <div class="col-md-3">
-        <div class="text-center">
-            {% if user.managers.profile_pic == "" %}
-                <img src="media/default/avatar.png" class="avatar img-circle" alt="avatar" style="width: 175px">
-            {% else %}
-                <img src="{{ worker.profile_pic }}" class="avatar img-circle" alt="avatar" style="width: 175px">
-            {% endif %}
-            <br><br>
-           <div class="d-flex justify-content-center">
-               <a href="{% url "edit_worker" worker.id %}" type="button" class="btn btn-outline-secondary">Edytuj profil</a>
-           </div>
-        </div>
-      </div>
-
-
-
-      <!-- edit form column -->
-      <div class="col-md-9 personal-info">
-
-
-
-           {% csrf_token %}
-            <div class="form-group">
-            <label class="col-lg-3 control-label">Imię:</label>
-            <div class="col-lg-8">
-                <p>{{ worker.first_name }} {{ worker.second_name }}</p>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-lg-3 control-label">Nazwisko:</label>
-            <div class="col-lg-8">
-              <p>{{ worker.last_name }}</p>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-lg-3 control-label">Data urodzenia:</label>
-            <div class="col-lg-8">
-              <p>{{ worker.birthday|date:"d-m-Y"}}</p>
-            </div>
-          </div>
-            <div class="form-group">
-            <label class="col-lg-3 control-label">Stanowisko:</label>
-            <div class="col-lg-8">
-              <p>{{ worker.position_id}}</p>
-            </div>
-                <div class="form-group">
-            <label class="col-lg-3 control-label">Dział/Brygada:</label>
-            <div class="col-lg-8">
-              <p>{{ worker.division_id}}</p>
-            </div>
-          </div>
-
-          </div>
-
-      </div>
-
-  </div>
-<hr>
-{% if worker.archival == True %}
-<div class="alert alert-secondary" role="alert">
-  Pracownik archiwalny
+    {% if worker.archival == True %}
+        <div class="alert alert-secondary" role="alert">
+        Pracownik archiwalny
     {% endif %}
 </div>
-</div>
+    <hr>
+    <div class="row">
+        <!-- left column -->
+        <div class="col-md-3">
+            <div class="text-center">
+                {% if user.managers.profile_pic == "" %}
+                    <img src="media/default/avatar.png" class="avatar img-circle" alt="avatar" style="width: 175px">
+                {% else %}
+                    <img src="{{ worker.profile_pic }}" class="avatar img-circle" alt="avatar" style="width: 175px">
+                {% endif %}
+                <br><br>
+                <div class="d-flex justify-content-center">
+                    <a href="{% url "edit_worker" worker.id %}" type="button" class="btn btn-outline-secondary">Edytuj
+                        profil</a>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- edit form column -->
+        <div class="col-md-9 personal-info">
+
+
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="col-lg-3 control-label">Imię:</label>
+                <div class="col-lg-8">
+                    <p>{{ worker.first_name }} {{ worker.second_name }}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-3 control-label">Nazwisko:</label>
+                <div class="col-lg-8">
+                    <p>{{ worker.last_name }}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-3 control-label">Data urodzenia:</label>
+                <div class="col-lg-8">
+                    <p>{{ worker.birthday|date:"d-m-Y" }}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-lg-3 control-label">Stanowisko:</label>
+                <div class="col-lg-8">
+                    <p>{{ worker.position_id.name }}</p>
+                </div>
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Dział/Brygada:</label>
+                    <div class="col-lg-8">
+                        <p>{{ worker.division_id.name }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <br>
+    <div class="container bootstrap snippets bootdey">
+
+        <h2 class="text-info"><span class="glyphicon glyphicon-user"></span>Ocena umiejętności pracownika</h2>
+
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="text-center">
+
+                <br><br>
+                <div class="d-flex justify-content-center">
+                    <a href="{% url "edit_rating_worker_skill" worker.id %}" type="button" class="btn btn-outline-secondary">Edytuj
+                        oceny</a>
+                </div>
+        </div>
+        </div>
+
+        <div class="col-md-9 personal-info">
+
+            {% for rate in ratings %}
+                {% csrf_token %}
+
+
+                <div class="col-md-4">
+                    <div class="progress-group">
+                        {{ rate.skill_id.name }}
+                        <span class="float-right"><b>{{ rate.rate }}</b>/4</span>
+                        <div class="progress progress-sm">
+                            {% if rate.rate  == 0 %}
+                                <div class="progress-bar bg-info" style="width: 0%"></div>
+                            {% elif rate.rate == 1 %}
+                                <div class="progress-bar bg-info" style="width: 25%"></div>
+                                {% elif rate.rate == 2 %}
+                                <div class="progress-bar bg-info" style="width: 50%"></div>
+                                {% elif rate.rate == 3 %}
+                                <div class="progress-bar bg-info" style="width: 75%"></div>
+                                {% elif rate.rate == 4 %}
+                                <div class="progress-bar bg-info" style="width: 100%"></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
+
+
+
+
+
 
 {% endblock main_content %}

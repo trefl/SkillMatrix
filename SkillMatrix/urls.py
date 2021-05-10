@@ -102,6 +102,12 @@ urlpatterns = [
     path('edit_skill_save', ManagerViews.edit_skill_save, name="edit_skill_save"),
 
 
+    path('edit_rating_worker_skill/<str:worker_id>', ManagerViews.edit_rating_worker_skill, name="edit_rating_worker_skill"),
+    path('edit_rating_worker_skill_save', ManagerViews.edit_rating_worker_skill_save, name="edit_rating_worker_skill_save"),
+
+
+
+
 
 
 

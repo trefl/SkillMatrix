@@ -8,7 +8,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from skill_matrix_app.forms import ChangePasswordForm, CreateUserForm, CreateWorkerForm
-from skill_matrix_app.models import CustomUser, Companies, Managers, Assistants, Workers, Positions, Divisions, Skills
+from skill_matrix_app.models import CustomUser, Companies, Managers, Assistants, Workers, Positions, Divisions, Skills, \
+    Ratings
 from skill_matrix_app.views import send_activation_email
 
 
@@ -69,13 +70,12 @@ def add_assistant_save(request):
 
             send_activation_email(request, user)
 
-            messages.success(request, "Dodanie uzytkownika zakończone powodzeniem")
+            messages.success(request, "Dodanie użytkownika zakończone powodzeniem")
             return HttpResponseRedirect(reverse("manage_assistant"))
         else:
             form = CreateUserForm(request.POST)
-            messages.error(request, "Dodanie uzytkownika zakończone niepowodzeniem")
+            messages.error(request, "Dodanie użytkownika zakończone niepowodzeniem")
             return render(request, 'manager_template/add_assistant_template.html', {"form": form})
-            # return HttpResponseRedirect(request("manage_assistant"))
 
 
 
@@ -210,11 +210,15 @@ def add_worker_save(request):
                 worker_model.profile_pic = profile_pic_url
             print(worker_model)
             worker_model.save()
+            skills = Skills.objects.filter(company_id=company.id)
+            for skill in skills:
+                rating = Ratings(skill_id_id=skill.id, worker_id_id=worker_model.id)
+                rating.save()
 
-            messages.success(request, "Dodanie uzytkownika zakończone powodzeniem")
+            messages.success(request, "Dodanie użytkownika zakończone powodzeniem")
             return HttpResponseRedirect(reverse("manage_worker"))
         except:
-            messages.error(request, "Dodanie uzytkownika zakończone niepowodzeniem")
+            messages.error(request, "Dodanie użytkownika zakończone niepowodzeniem")
             return HttpResponseRedirect(request("add_worker"))
 
 
@@ -236,15 +240,19 @@ def delete_worker(request, worker_id):
         return HttpResponseRedirect(reverse("manage_worker"))
 
 def edit_worker(request, worker_id):
-    request.session['worker_id'] = worker_id
-    worker = Workers.objects.get(id=worker_id)
-    if (worker.company_id.id == request.user.managers.company_id_id):
-        company = Companies.objects.get(id=request.user.managers.company_id_id)
-        positions = Positions.objects.filter(company_id=company.id)
-        divisions = Divisions.objects.filter(company_id=company.id)
-        return render(request, "manager_template/edit_worker_template.html", {"worker": worker, "worker_id": worker_id, "positions": positions, "divisions": divisions})
-    else:
+    try:
+        request.session['worker_id'] = worker_id
+        worker = Workers.objects.get(id=worker_id)
+        if (worker.company_id.id == request.user.managers.company_id_id):
+            company = Companies.objects.get(id=request.user.managers.company_id_id)
+            positions = Positions.objects.filter(company_id=company.id)
+            divisions = Divisions.objects.filter(company_id=company.id)
+            return render(request, "manager_template/edit_worker_template.html", {"worker": worker, "worker_id": worker_id, "positions": positions, "divisions": divisions})
+        else:
+            return HttpResponseRedirect(reverse("manage_worker"))
+    except:
         return HttpResponseRedirect(reverse("manage_worker"))
+
 
 def edit_worker_save(request):
     if request.method != "POST":
@@ -306,12 +314,17 @@ def edit_worker_save(request):
 
 
 def profile_worker(request, worker_id):
-    worker = Workers.objects.get(id=worker_id)
-    if (worker.company_id.id == request.user.managers.company_id_id):
-        return render(request, "manager_template/profile_worker_template.html", {"worker": worker, "worker_id": worker_id})
-    else:
-        messages.error(request, "Usunięcie pracownika nieudane")
+    try:
+        worker = Workers.objects.get(id=worker_id)
+        if (worker.company_id.id == request.user.managers.company_id_id):
+            ratings = Ratings.objects.filter(worker_id=worker.id)
+
+            return render(request, "manager_template/profile_worker_template.html", {"worker": worker, "worker_id": worker_id, "ratings": ratings})
+        else:
+            return HttpResponseRedirect(reverse("manage_worker"))
+    except:
         return HttpResponseRedirect(reverse("manage_worker"))
+
 
 
 def manage_position(request):
@@ -335,7 +348,6 @@ def add_position_save(request):
             return HttpResponseRedirect(reverse("manage_position"))
         except:
             messages.error(request, "Dodanie stanowiska zakończone niepowodzeniem")
-            # return render(request, 'manager_template/add_worker_template.html', {"form": form})
             return HttpResponseRedirect(request("manage_position"))
 
 def delete_position(request, position_id):
@@ -545,8 +557,13 @@ def add_skill_save(request):
         print(name)
         try:
             company = Companies.objects.get(id=request.user.managers.company_id_id)
+
             skill_model = Skills(name=name, company_id_id=company.id)
             skill_model.save()
+            workers = Workers.objects.filter(company_id=company.id)
+            for worker in workers:
+                rating = Ratings(skill_id_id=skill_model.id, worker_id_id=worker.id)
+                rating.save()
 
             messages.success(request, "Dodanie umiejętności zakończone powodzeniem")
             return HttpResponseRedirect(reverse("manage_skill"))
@@ -594,3 +611,45 @@ def edit_skill_save(request):
         except:
             messages.error(request, "Nazwa umiejętności nie została zmieniona")
             return HttpResponseRedirect(reverse("manage_skill"))
+
+
+def edit_rating_worker_skill(request, worker_id):
+    try:
+        request.session['worker_id'] = worker_id
+        company = Companies.objects.get(id=request.user.managers.company_id_id)
+        worker = Workers.objects.get(id=worker_id)
+        if (worker.company_id.id == request.user.managers.company_id_id):
+            ratings = Ratings.objects.filter(worker_id=worker.id)
+            skills = Skills.objects.filter(company_id=company.id)
+            list = []
+            for i in range(5):
+                list.append(i)
+            return render(request, "manager_template/edit_rating_worker_skill_template.html", {"skills": skills, "ratings": ratings, "worker": worker, "worker_id": worker_id, "list": list})
+    except:
+        return HttpResponseRedirect(reverse("manage_worker"))
+
+def edit_rating_worker_skill_save(request):
+    if request.method != "POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        worker_id = request.session.get("worker_id")
+        if worker_id is None:
+            return HttpResponseRedirect(reverse("manage_worker"))
+        try:
+            ratings = Ratings.objects.filter(worker_id_id=worker_id)
+            for rating in ratings:
+                rate = int(request.POST.get(str(rating.id)))
+                if rate >= 0 and rate < 5:
+                    worker_rating = Ratings.objects.get(id=rating.id)
+                    worker_rating.rate = rate
+                    worker_rating.save()
+            del request.session['worker_id']
+            messages.success(request, "Oceny zostały zmienione")
+            return HttpResponseRedirect(reverse("edit_rating_worker_skill", kwargs={'worker_id': worker_id}))
+        except:
+            messages.success(request, "Oceny nie zostały zmienione")
+            return HttpResponseRedirect(reverse("edit_rating_worker_skill", kwargs={'worker_id': worker_id}))
+
+
+
+

@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -106,7 +107,7 @@ class Ratings(models.Model):
     id = models.AutoField(primary_key=True)
     worker_id = models.ForeignKey(Workers, on_delete=models.CASCADE)
     skill_id = models.ForeignKey(Skills, on_delete=models.CASCADE)
-    rate = models.IntegerField()
+    rate = models.IntegerField(default=0, validators=[MaxValueValidator(4), MinValueValidator(0)])
     objects = models.Manager()
 
 @receiver(post_save, sender=CustomUser)
