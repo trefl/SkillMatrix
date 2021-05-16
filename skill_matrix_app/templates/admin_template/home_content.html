@@ -1,12 +1,152 @@
 {% extends 'admin_template/base_template.html' %}
-{%  block page_title %}
+{% block page_title %}
     Home
 {% endblock page_title %}
 {% block main_content %}
     <!-- Main content -->
     <section class="content">
-      <div class="container-fluid">
-      </div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-3 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>{{ all_users }}</h3>
+
+                            <p>Konta użytkowników</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-pie-graph"></i>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- ./col -->
+                <div class="col-lg-3 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>{{ m_users }}</h3>
+
+                            <p>Konta - Manager</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-pie-graph"></i>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- ./col -->
+                <div class="col-lg-3 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3>{{ a_users }}</h3>
+
+                            <p>Konta - Asystent</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-pie-graph"></i>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- ./col -->
+                <div class="col-lg-3 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3>{{ workers }}</h3>
+
+                            <p>Utworzeni pracownicy</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-pie-graph"></i>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- ./col -->
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card card-lightblue ">
+                        <div class="card-header tex">
+                            <h3 class="card-title">Podział użytkowników</h3>
+
+                            <div class="card-tools">
+                            </div>
+                        </div>
+                        <div class="card-body ">
+                            <div class="col-lg-6"></div>
+                            <canvas id="pieChart"
+                                    style="min-height: 250px; height: 250px; max-height: 250%; max-width: 100%;"></canvas>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card card-lightblue">
+                        <div class="card-header">
+                            <h3 class="card-title">Aktywowani użytkownicy</h3>
+
+                            <div class="card-tools">
+
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="doughnutChart"
+                                    style="min-height: 250px; height: 250px; max-height: 250%; max-width: 100%;"></canvas>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
     <!-- /.content -->
 {% endblock main_content %}
+{% block custom_js %}
+
+    <script>
+        $(function () {
+                var ctx = document.getElementById('pieChart').getContext('2d');
+
+                var pieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Administrator', 'Manager', 'Asystent'],
+                        datasets: [{
+                            data: {{ type_list }},
+                            label: ['Administrator', 'Manager', 'Asystent'],
+                            backgroundColor: ['#F554DAFF', '#08C66FFF', '#07A4EEFF'],
+                            fill: true,
+                        },
+
+                        ]
+                    },
+                });
+
+
+                var ctx = document.getElementById('doughnutChart').getContext('2d');
+
+                var doughnutChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ["Użytkownicy aktywowani", "Użytkownicy nieaktywowani"],
+                        datasets: [{
+                            data: [{{ users_logged }}, {{users_not_logged}}],
+                            label: "[{% for division in divisions %}'{{ division.name }}',{% endfor %}]",
+                            backgroundColor: ['#FA5A04FF', '#4AC608FF'],
+                            fill: true,
+                        },
+
+                        ]
+                    },
+                 });
+
+            }
+        )
+    </script>
+{% endblock custom_js %}
+

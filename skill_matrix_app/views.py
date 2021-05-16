@@ -20,8 +20,7 @@ from skill_matrix_app.forms import SignupManagerForm, CreateUserForm
 from skill_matrix_app.models import CustomUser, Companies
 
 
-def showDemoPage(request):
-    return render(request, "demo.html")
+
 
 
 def ShowLoginPage(request):

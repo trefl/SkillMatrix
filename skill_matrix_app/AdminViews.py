@@ -1,24 +1,38 @@
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.contrib.sites.shortcuts import get_current_site
 from django.core.files.storage import FileSystemStorage
-from django.core.mail import send_mail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.template import loader
 from django.urls import reverse
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
 from django.views.decorators.csrf import csrf_exempt
-from skill_matrix_app.forms import AddManagerForm, CreateUserForm, ChangePasswordForm
-from skill_matrix_app.models import CustomUser, Companies, Admins, Managers, Assistants
+from skill_matrix_app.forms import CreateUserForm, ChangePasswordForm
+from skill_matrix_app.models import CustomUser, Admins, Workers
 from skill_matrix_app.views import send_activation_email
 
 
 def admin_home(request):
-    return render(request, 'admin_template/home_content.html')
+    all_users = CustomUser.objects.all().count()
+    m_users = CustomUser.objects.filter(user_type="2").count()
+    a_users = CustomUser.objects.filter(user_type="3").count()
+    workers = Workers.objects.all().count()
+    users_not_logged = CustomUser.objects.filter(last_login__isnull=True).count()
+    users_logged = CustomUser.objects.filter(last_login__isnull=False).count()
+    name_list = ('Administrator', 'Manager', 'Asystent')
+    type_list = []
+    for i in range(1, 4):
+        types = CustomUser.objects.filter(user_type=i).count()
+        type_list.append(types)
+
+
+
+    print(all_users)
+    print(m_users)
+    print(a_users)
+    print(workers)
+    print(users_logged)
+    context = {"all_users": all_users, "m_users": m_users, "a_users": a_users, "workers": workers, "type_list": type_list, "name_list": name_list, "users_not_logged": users_not_logged, "users_logged": users_logged}
+
+    return render(request, 'admin_template/home_content.html', context)
 
 
 def add_admin(request):
@@ -54,86 +68,11 @@ def add_admin_save(request):
 
 
 
-
-# def send_activation_email(request, user, use_https=False, from_email=None):
-#     current_site = get_current_site(request)
-#     print(current_site)
-#     token_generator = PasswordResetTokenGenerator()
-#     print(token_generator)
-#     token = token_generator.make_token(user)
-#     print(token)
-#     uid = urlsafe_base64_encode(force_bytes(user.pk))
-#     print(uid)
-#     site_name = current_site.name
-#     print(site_name)
-#     domain = current_site.domain
-#     print(domain)
-#     admin = request.user
-#     print(admin)
-#     c = {
-#         'email': user.email,
-#         'domain': domain,
-#         'site_name': site_name,
-#         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-#         'user': user,
-#         'token': token_generator.make_token(user),
-#         'protocol': 'https' if use_https else 'http',
-#         'admin': admin,
-#     }
-#     subject_template_name = 'registration/password_reset_subject.txt',
-#     email_template_name = 'registration/invite_user_email.html',
-#     subject = loader.render_to_string(subject_template_name, c)
-#     # Email subject *must not* contain newlines
-#     subject = ''.join(subject.splitlines())
-#     email = loader.render_to_string(email_template_name, c)
-#     send_mail(subject, email, from_email, [user.email])
-
-
-
-
-def add_manager(request):
-    return render(request, 'admin_template/add_manager_template.html')
-
-
-def add_manager_save(request):
-    if request.method != 'POST':
-        return HttpResponse("Method Not Allowed")
-    else:
-        form = AddManagerForm(request.POST)
-        if form.is_valid():
-            first_name = request.POST.get('first_name')
-            last_name = request.POST.get('last_name')
-            username = request.POST.get('username')
-            email = request.POST.get('email')
-            password = request.POST.get('password')
-            company = request.POST.get('company')
-
-            company_model = Companies(name=company)
-            company_model.save()
-
-            user = CustomUser.objects.create_user(username=username, password=password, email=email,
-                                                  last_name=last_name, first_name=first_name, user_type=2)
-            user.managers.company_id_id = company_model.id
-            user.save()
-            # return print(company_model.id)
-
-            messages.success(request, "Successfully Added Manager ")
-            return HttpResponseRedirect(reverse("add_manager"))
-        else:
-            form = AddManagerForm(request.POST)
-            return render(request, 'admin_template/add_manager_template.html', {"form": form})
-
-
-def add_assistant(request):
-    return render(request, 'admin_template/add_assistant_template.html')
-
-
 def manage_admin(request):
     admins = CustomUser.objects.filter(user_type="1") & CustomUser.objects.exclude(
         is_superuser="1") & CustomUser.objects.exclude(id=request.user.id)
     form = CreateUserForm()
     return render(request, "admin_template/manage_admin_template.html", {"admins": admins, "form": form})
-    print(admins)
 
 
 def delete_admin(request, admin_id):
@@ -179,14 +118,12 @@ def admin_profile_save(request):
 
         try:
             user = CustomUser.objects.get(id=request.user.id)
-            print(user)
             user.first_name = first_name
             user.last_name = last_name
             user.save()
             user_profile = Admins.objects.get(admin=request.user.id)
             if profile_pic_url != None:
                 user_profile.profile_pic = profile_pic_url
-            print(user_profile)
             user_profile.save()
 
             messages.success(request, "Profil został zaktualizowany")
@@ -194,7 +131,6 @@ def admin_profile_save(request):
         except:
             messages.error(request, "Aktualizacja profilu nieudana")
             return HttpResponseRedirect(reverse("admin_profile"))
-
 
 
 def admin_change_password(request):
@@ -211,10 +147,7 @@ def admin_change_password(request):
     return render(request, "admin_template/change_password_template.html", {"form": form})
 
 
-
 def manage_users(request):
-    # users = CustomUser.objects.exclude(user_type="1")
-
     m_users = CustomUser.objects.order_by('managers__company_id__name') & CustomUser.objects.filter(user_type="2")
     a_users = CustomUser.objects.order_by('assistants__company_id__name') & CustomUser.objects.filter(user_type="3")
 

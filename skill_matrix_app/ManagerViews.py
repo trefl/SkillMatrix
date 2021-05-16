@@ -23,8 +23,8 @@ def manager_home(request):
     positions = Positions.objects.filter(company_id=company.id)
     worker_count_list_in_position = []
     for position in positions:
-        workers_count = Workers.objects.filter(position_id=position.id).count()
-        worker_count_list_in_position.append(workers_count)
+        workers_position_count = Workers.objects.filter(position_id=position.id).count()
+        worker_count_list_in_position.append(workers_position_count)
 
     divisions = Divisions.objects.filter(company_id=company.id)
     worker_count_list_in_division = []
@@ -38,7 +38,6 @@ def manager_home(request):
         worker_rate = Ratings.objects.filter(worker_id=worker.id).aggregate(Sum('rate'))
         worker_rating_list.append(worker_rate['rate__sum'])
 
-    print(worker_rating_list)
 
     context = {"company": company, "workers_count": workers_count, "positions_count": positions_count,
                "divisions_count": divisions_count, "skills_count": skills_count, "positions": positions,

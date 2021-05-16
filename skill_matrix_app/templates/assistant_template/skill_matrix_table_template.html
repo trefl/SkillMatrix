@@ -1,0 +1,139 @@
+{% extends 'assistant_template/base_template.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+{% endblock page_title %}
+{% block main_content %}
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- /.card -->
+    </section>
+
+
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><b>Pracownicy</b></h3>
+
+                            <div class="card-tools">
+                                <div class="input-group input-group-sm" style="width: 150px;">
+                                    <div class="input-group-append">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body table-responsive py-sm-0">
+                            <table class="table table-hover block table-bordered text-nowrap ">
+                                <thead>
+
+                                <tr>
+                                    {% if count_position > 0 and count_division > 0 %}
+                                        <th rowspan="4"></th>
+                                    {% elif count_position > 0 and count_division is 0 %}
+                                        <th rowspan="3"></th>
+                                    {% elif count_position is 0 and count_division > 0 %}
+                                        <th rowspan="3"></th>
+                                    {% else %}
+                                        <th rowspan="2"></th>
+                                    {% endif %}
+
+                                    {% for worker in workers %}
+                                        <th class="align-middle text-center"><img src="{{ worker.profile_pic }}"
+                                                                                  style="width: 50px"></th>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+
+                                    {% for worker in workers %}
+                                        <th class="align-middle text-center">{{ worker.first_name }}<br>{{ worker.last_name }}
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                                {% if count_position > 0 %}
+                                    <tr>
+
+                                        {% for worker in workers %}
+                                            <td class="align-middle text-center">{{ worker.position_id.name }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endif %}
+
+                                {% if count_division > 0 %}
+                                    <tr>
+                                        {% for worker in workers %}
+                                            <td class="align-middle text-center">{{ worker.division_id.name }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endif %}
+                                </thead>
+
+                                <tbody>
+                                {% for skill in skills %}
+                                    <tr>
+
+                                        <td class="align-middle">{{ skill.name }}</td>
+                                        {% for worker in workers %}
+                                            {% for rating in ratings %}
+                                                {% if skill.id ==  rating.skill_id.id and worker.id == rating.worker_id.id %}
+                                                    {% if rating.rate == 0 %}
+                                                        <td class="align-middle text-center"><img
+                                                                src="media/default/0z4.png" alt="0/4"
+                                                                style="width: 35px"></td>
+                                                    {% elif rating.rate == 1 %}
+                                                        <td class="align-middle text-center"><img
+                                                                src="media/default/1z4.png" alt="1/4"
+                                                                style="width: 35px"></td>
+                                                    {% elif rating.rate == 2 %}
+                                                        <td class="align-middle text-center"><img
+                                                                src="media/default/2z4.png" alt="2/4"
+                                                                style="width: 35px"></td>
+                                                    {% elif rating.rate == 3 %}
+                                                        <td class="align-middle text-center"><img
+                                                                src="media/default/3z4.png" alt="3/4"
+                                                                style="width: 35px"></td>
+                                                    {% elif rating.rate == 4 %}
+                                                        <td class="align-middle text-center"><img
+                                                                src="media/default/4z4.png" alt="4/4"
+                                                                style="width: 35px"></td>
+
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+
+
+    </section>
+    <!-- /.content -->
+{% endblock main_content %}
+{% block custom_js %}
+
+{% endblock custom_js %}

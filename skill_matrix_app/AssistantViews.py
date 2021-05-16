@@ -1,12 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.core.files.storage import FileSystemStorage
-from django.http import HttpResponseRedirect
+from django.db.models import Count, Sum
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from skill_matrix_app.forms import ChangePasswordForm
-from skill_matrix_app.models import Companies, CustomUser, Assistants
+from skill_matrix_app.models import Companies, CustomUser, Assistants, Positions, Divisions, Workers, Skills, Ratings, \
+    Totals
+from skill_matrix_app.utils import get_plot
 
 
 def assistant_home(request):
@@ -71,3 +74,603 @@ def assistant_change_password(request):
         form = ChangePasswordForm(request.user)
 
     return render(request, "assistant_template/change_password_template.html", {"form": form})
+
+
+def assistant_add_worker(request):
+    company = Companies.objects.get(id=request.user.assistants.company_id_id)
+    print(company.id)
+    positions = Positions.objects.filter(company_id=company.id)
+    divisions = Divisions.objects.filter(company_id=company.id)
+
+    return render(request, 'assistant_template/add_worker_template.html',
+                  {"positions": positions, "divisions": divisions})
+
+
+def assistant_add_worker_save(request):
+    if request.method != 'POST':
+        return HttpResponse("Method Not Allowed")
+    else:
+        first_name = request.POST.get('first_name')
+        second_name = request.POST.get('second_name')
+        last_name = request.POST.get('last_name')
+        birthday = request.POST.get('birthday')
+        archival = request.POST.get('archival')
+        position_id = request.POST.get('position')
+        division_id = request.POST.get('division')
+
+        if position_id == "0":
+            position_id = None
+
+        if division_id == "0":
+            division_id = None
+
+        if archival == None:
+            archival = False
+        else:
+            archival = True
+
+        if request.FILES.get('profile_pic', False):
+            profile_pic = request.FILES['profile_pic']
+            fs = FileSystemStorage()
+            filename = fs.save(profile_pic.name, profile_pic)
+            profile_pic_url = fs.url(filename)
+        else:
+            profile_pic_url = None
+
+        try:
+            company = Companies.objects.get(id=request.user.assistants.company_id_id)
+            worker_model = Workers(first_name=first_name, second_name=second_name, last_name=last_name,
+                                   birthday=birthday, archival=archival, position_id_id=position_id,
+                                   division_id_id=division_id)
+            worker_model.company_id_id = company.id
+            if profile_pic_url != None:
+                worker_model.profile_pic = profile_pic_url
+            worker_model.save()
+            skills = Skills.objects.filter(company_id=company.id)
+            for skill in skills:
+                rating = Ratings(skill_id_id=skill.id, worker_id_id=worker_model.id, company_id_id=company.id)
+                rating.save()
+            total = Totals(worker_id_id=worker_model.id, company_id_id=company.id)
+            total.save()
+
+            messages.success(request, "Dodanie użytkownika zakończone powodzeniem")
+            return HttpResponseRedirect(reverse("assistant_manage_worker"))
+        except:
+            messages.error(request, "Dodanie użytkownika zakończone niepowodzeniem")
+            return HttpResponseRedirect(request("assistant_add_worker"))
+
+def assistant_manage_worker(request):
+    company = Companies.objects.get(id=request.user.assistants.company_id_id)
+    workers = Workers.objects.filter(company_id=company.id).exclude(archival=True)
+    archivals = Workers.objects.filter(company_id=company.id).exclude(archival=False)
+    return render(request, "assistant_template/manage_worker_template.html", {"workers": workers, "archivals": archivals})
+
+
+def assistant_delete_worker(request, worker_id):
+    worker = Workers.objects.get(id=worker_id)
+    if (worker.company_id.id == request.user.assistants.company_id_id):
+        worker.delete()
+        messages.success(request, "Pracownik został usunięty")
+        return HttpResponseRedirect(reverse("assistant_manage_worker"))
+    else:
+        messages.error(request, "Usunięcie pracownika nieudane")
+        return HttpResponseRedirect(reverse("assistant_manage_worker"))
+
+
+def assistant_edit_worker(request, worker_id):
+    try:
+        request.session['worker_id'] = worker_id
+        worker = Workers.objects.get(id=worker_id)
+        if (worker.company_id.id == request.user.assistants.company_id_id):
+            company = Companies.objects.get(id=request.user.assistants.company_id_id)
+            positions = Positions.objects.filter(company_id=company.id)
+            divisions = Divisions.objects.filter(company_id=company.id)
+            return render(request, "assistant_template/edit_worker_template.html",
+                          {"worker": worker, "worker_id": worker_id, "positions": positions, "divisions": divisions})
+        else:
+            return HttpResponseRedirect(reverse("assistant_manage_worker"))
+    except:
+        return HttpResponseRedirect(reverse("assistant_manage_worker"))
+
+
+def assistant_edit_worker_save(request):
+    if request.method != "POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        worker_id = request.session.get("worker_id")
+        if worker_id is None:
+            return HttpResponseRedirect(reverse("assistant_manage_worker"))
+
+        first_name = request.POST.get('first_name')
+        second_name = request.POST.get('second_name')
+        last_name = request.POST.get('last_name')
+        birthday = request.POST.get('birthday')
+        archival = request.POST.get('archival')
+        position_id = request.POST.get('position')
+        division_id = request.POST.get('division')
+
+        if position_id == "0":
+            position_id = None
+
+        if division_id == "0":
+            division_id = None
+
+        if archival is None:
+            archival = False
+        else:
+            archival = True
+
+        if request.FILES.get('profile_pic', False):
+            profile_pic = request.FILES['profile_pic']
+            fs = FileSystemStorage()
+            filename = fs.save(profile_pic.name, profile_pic)
+            profile_pic_url = fs.url(filename)
+        else:
+            profile_pic_url = None
+
+        try:
+            worker_model = Workers.objects.get(id=worker_id)
+            worker_model.first_name = first_name
+            worker_model.second_name = second_name
+            worker_model.last_name = last_name
+            worker_model.birthday = birthday
+            worker_model.archival = archival
+            worker_model.position_id_id = position_id
+            worker_model.division_id_id = division_id
+            if profile_pic_url != None:
+                worker_model.profile_pic = profile_pic_url
+            worker_model.save()
+            del request.session['worker_id']
+
+            messages.success(request, "Edycja pracownika zakończone powodzeniem")
+            return HttpResponseRedirect(reverse("assistant_manage_worker"))
+        except:
+            messages.error(request, "Edycja pracownika zakończone niepowodzeniem")
+            return render(request, 'assistant_template/edit_worker_template.html')
+
+
+def assistant_profile_worker(request, worker_id):
+    try:
+        worker = Workers.objects.get(id=worker_id)
+        if (worker.company_id.id == request.user.assistants.company_id_id):
+            ratings = Ratings.objects.filter(worker_id=worker.id)
+            worker_ratings = Ratings.objects.filter(worker_id=worker.id)
+            worker_count = worker_ratings.aggregate(Count('rate'))
+            worker_sum = worker_ratings.aggregate(Sum('rate'))
+
+            worker_rate = int(worker_sum['rate__sum'] / (worker_count['rate__count'] * 4) * 100)
+
+            qs = Totals.objects.filter(worker_id=worker_id)
+            x = [x.created_at for x in qs]
+            y = [y.total_rate for y in qs]
+            chart = get_plot(x, y)
+
+            context = {"worker": worker, "worker_id": worker_id, "ratings": ratings, "worker_rate": worker_rate,
+                       "chart": chart}
+            return render(request, "assistant_template/profile_worker_template.html", context)
+        else:
+            return HttpResponseRedirect(reverse("assistant_manage_worker"))
+    except:
+        return HttpResponseRedirect(reverse("assistant_manage_worker"))
+
+
+def assistant_manage_position(request):
+    company = Companies.objects.get(id=request.user.assistants.company_id_id)
+    positions = Positions.objects.filter(company_id=company.id)
+    workers = Workers.objects.filter(company_id=company.id).order_by('last_name').exclude(archival=True)
+
+    return render(request, "assistant_template/manage_position_template.html",
+                  {"positions": positions, "workers": workers})
+
+
+def assistant_add_position_save(request):
+    if request.method != 'POST':
+        return HttpResponse("Method Not Allowed")
+    else:
+        name = request.POST.get('name')
+        try:
+            company = Companies.objects.get(id=request.user.assistants.company_id_id)
+            position_model = Positions(name=name, company_id_id=company.id)
+            position_model.save()
+
+            messages.success(request, "Dodanie stanowiska zakończone powodzeniem")
+            return HttpResponseRedirect(reverse("assistant_manage_position"))
+        except:
+            messages.error(request, "Dodanie stanowiska zakończone niepowodzeniem")
+            return HttpResponseRedirect(request("assistant_manage_position"))
+
+
+def assistant_delete_position(request, position_id):
+    try:
+        position = Positions.objects.get(id=position_id)
+        if (position.company_id.id == request.user.assistants.company_id_id):
+            position.delete()
+            messages.success(request, "Stanowisko zostało usunięte")
+            return HttpResponseRedirect(reverse("assistant_manage_position"))
+        else:
+            messages.error(request, "Usunięcie stanowiska nieudane")
+            return HttpResponseRedirect(reverse("assistant_manage_position"))
+    except:
+        messages.error(request, "Usunięcie stanowiska nieudane. Najpierw odepnij pracowników")
+        return HttpResponseRedirect(reverse("assistant_manage_position"))
+
+
+def assistant_unpin_from_position(request, worker_id):
+    try:
+        worker = Workers.objects.get(id=worker_id)
+        if (worker.company_id.id == request.user.assistants.company_id_id):
+            worker.position_id_id = None
+            worker.save()
+            messages.success(request, "Pracownik został pomyślnie odpięty")
+            return HttpResponseRedirect(reverse("assistant_manage_position"))
+        else:
+            messages.error(request, "Odpięcie pracownika nieudane")
+            return HttpResponseRedirect(reverse("assistant_manage_position"))
+    except:
+        messages.error(request, "Odpięcie pracownika nieudane")
+        return HttpResponseRedirect(reverse("assistant_manage_position"))
+
+
+def assistant_edit_position_save(request):
+    if request.method != "POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        position_id = request.POST.get('id')
+        name = request.POST.get('name')
+
+        try:
+            position = Positions.objects.get(id=position_id)
+            if (position.company_id.id == request.user.assistants.company_id_id):
+                try:
+                    position.name = name
+                    position.save()
+                    messages.success(request, "Nazwa stanowiska została zmieniona")
+                    return HttpResponseRedirect(reverse("assistant_manage_position"))
+                except:
+                    messages.error(request, "Nazwa stanowiska nie została zmieniona")
+                    return HttpResponseRedirect(reverse("assistant_manage_position"))
+            else:
+                messages.error(request, "Nazwa stanowiska nie została zmieniona")
+                return HttpResponseRedirect(reverse("assistant_manage_position"))
+        except:
+            messages.error(request, "Nazwa stanowiska nie została zmieniona")
+            return HttpResponseRedirect(reverse("assistant_manage_position"))
+
+
+def assistant_pin_to_position(request):
+    if request.method != "POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        worker_id = request.POST.get('worker_id')
+        position_id = request.POST.get('id')
+        try:
+            worker = Workers.objects.get(id=worker_id)
+            position = Positions.objects.get(id=position_id)
+            if (
+                    position.company_id.id == request.user.assistants.company_id_id & worker.company_id.id == request.user.assistants.company_id_id):
+                try:
+                    worker.position_id_id = position_id
+                    worker.save()
+                    messages.success(request, "Pracownik został przypięty")
+                    return HttpResponseRedirect(reverse("assistant_manage_position"))
+                except:
+                    messages.error(request, "Przypięcie pracownika nieudane")
+                    return HttpResponseRedirect(reverse("assistant_manage_position"))
+            else:
+                messages.error(request, "Przypięcie pracownika nieudane")
+                return HttpResponseRedirect(reverse("assistant_manage_position"))
+        except:
+            messages.error(request, "Przypięcie pracownika nieudane")
+            return HttpResponseRedirect(reverse("assistant_manage_position"))
+
+
+def assistant_manage_division(request):
+    company = Companies.objects.get(id=request.user.assistants.company_id_id)
+    divisions = Divisions.objects.filter(company_id=company.id)
+    workers = Workers.objects.filter(company_id=company.id).order_by('last_name').exclude(archival=True)
+
+    return render(request, "assistant_template/manage_division_template.html",
+                  {"divisions": divisions, "workers": workers})
+
+
+def assistant_add_division_save(request):
+    if request.method != 'POST':
+        return HttpResponse("Method Not Allowed")
+    else:
+        name = request.POST.get('name')
+        try:
+            company = Companies.objects.get(id=request.user.assistants.company_id_id)
+            division_model = Divisions(name=name, company_id_id=company.id)
+            division_model.save()
+
+            messages.success(request, "Dodanie działu zakończone powodzeniem")
+            return HttpResponseRedirect(reverse("assistant_manage_division"))
+        except:
+            messages.error(request, "Dodanie działu zakończone niepowodzeniem")
+            return HttpResponseRedirect(request("assistant_manage_division"))
+
+
+def assistant_delete_division(request, division_id):
+    try:
+        division = Divisions.objects.get(id=division_id)
+        if (division.company_id.id == request.user.assistants.company_id_id):
+            division.delete()
+            messages.success(request, "Dział został usunięty")
+            return HttpResponseRedirect(reverse("assistant_manage_division"))
+        else:
+            messages.error(request, "Usunięcie działu nieudane")
+            return HttpResponseRedirect(reverse("assistant_manage_division"))
+    except:
+        messages.error(request, "Usunięcie działu nieudane. Najpierw odepnij pracowników")
+        return HttpResponseRedirect(reverse("assistant_manage_division"))
+
+
+def assistant_unpin_from_division(request, worker_id):
+    try:
+        worker = Workers.objects.get(id=worker_id)
+        if (worker.company_id.id == request.user.assistants.company_id_id):
+            worker.division_id_id = None
+            worker.save()
+            messages.success(request, "Pracownik został pomyślnie odpięty")
+            return HttpResponseRedirect(reverse("assistant_manage_division"))
+        else:
+            messages.error(request, "Odpięcie pracownika nieudane")
+            return HttpResponseRedirect(reverse("assistant_manage_division"))
+    except:
+        messages.error(request, "Odpięcie pracownika nieudane")
+        return HttpResponseRedirect(reverse("assistant_manage_division"))
+
+
+def assistant_edit_division_save(request):
+    if request.method != "POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        division_id = request.POST.get('id')
+        name = request.POST.get('name')
+
+        try:
+            division = Divisions.objects.get(id=division_id)
+            if (division.company_id.id == request.user.assistants.company_id_id):
+                try:
+                    division.name = name
+                    division.save()
+                    messages.success(request, "Nazwa działu została zmieniona")
+                    return HttpResponseRedirect(reverse("assistant_manage_division"))
+                except:
+                    messages.error(request, "Nazwa działu nie została zmieniona")
+                    return HttpResponseRedirect(reverse("assistant_manage_division"))
+            else:
+                messages.error(request, "Nazwa działu nie została zmieniona")
+                return HttpResponseRedirect(reverse("assistant_manage_division"))
+        except:
+            messages.error(request, "Nazwa działu nie została zmieniona")
+            return HttpResponseRedirect(reverse("assistant_manage_division"))
+
+
+def assistant_pin_to_division(request):
+    if request.method != "POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        worker_id = request.POST.get('worker_id')
+        division_id = request.POST.get('id')
+        try:
+            worker = Workers.objects.get(id=worker_id)
+            division = Divisions.objects.get(id=division_id)
+            if (
+                    division.company_id.id == request.user.assistants.company_id_id & worker.company_id.id == request.user.assistants.company_id_id):
+                try:
+                    worker.division_id_id = division_id
+                    worker.save()
+                    messages.success(request, "Pracownik został przypięty")
+                    return HttpResponseRedirect(reverse("assistant_manage_division"))
+                except:
+                    messages.error(request, "Przypięcie pracownika nieudane")
+                    return HttpResponseRedirect(reverse("assistant_manage_division"))
+            else:
+                messages.error(request, "Przypięcie pracownika nieudane")
+                return HttpResponseRedirect(reverse("assistant_manage_division"))
+        except:
+            messages.error(request, "Przypięcie pracownika nieudane")
+            return HttpResponseRedirect(reverse("assistant_manage_division"))
+
+
+def assistant_manage_skill(request):
+    company = Companies.objects.get(id=request.user.assistants.company_id_id)
+    skills = Skills.objects.filter(company_id=company.id)
+
+    return render(request, "assistant_template/manage_skill_template.html", {"skills": skills})
+
+
+def assistant_add_skill_save(request):
+    if request.method != 'POST':
+        return HttpResponse("Method Not Allowed")
+    else:
+        name = request.POST.get('name')
+        try:
+            company = Companies.objects.get(id=request.user.assistants.company_id_id)
+
+            skill_model = Skills(name=name, company_id_id=company.id)
+            skill_model.save()
+            workers = Workers.objects.filter(company_id=company.id)
+
+            for worker in workers:
+                rating = Ratings(skill_id_id=skill_model.id, worker_id_id=worker.id, company_id_id=company.id)
+                rating.save()
+                worker_count = Totals.objects.filter(worker_id=worker.id).aggregate(Count('worker_id_id'))
+                if worker_count['worker_id_id__count'] == 0:
+                    total = Totals(worker_id_id=worker.id, company_id_id=company.id, total_rate=0)
+                    total.save()
+
+            messages.success(request, "Dodanie umiejętności zakończone powodzeniem")
+            return HttpResponseRedirect(reverse("assistant_manage_skill"))
+        except:
+            messages.error(request, "Dodanie umiejętności zakończone niepowodzeniem")
+            return HttpResponseRedirect(request("assistant_manage_skill"))
+
+
+def assistant_delete_skill(request, skill_id):
+    try:
+        skill = Skills.objects.get(id=skill_id)
+        if (skill.company_id.id == request.user.assistants.company_id_id):
+
+            skill.delete()
+            workers = Workers.objects.filter(company_id=skill.company_id.id)
+            for worker in workers:
+                worker_sum = Ratings.objects.filter(worker_id=worker.id).aggregate(Sum('rate'))
+                total = Totals(worker_id_id=worker.id, company_id_id=skill.company_id.id,
+                               total_rate=worker_sum['rate__sum'])
+                total.save()
+
+            messages.success(request, "Umiejętność została usunięta")
+            return HttpResponseRedirect(reverse("assistant_manage_skill"))
+        else:
+            messages.error(request, "Usunięcie umiejętności nieudane")
+            return HttpResponseRedirect(reverse("assistant_manage_skill"))
+    except:
+        messages.error(request, "Usunięcie umiejętności nieudane.")
+        return HttpResponseRedirect(reverse("assistant_manage_skill"))
+
+
+def assistant_edit_skill_save(request):
+    if request.method != "POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        skill_id = request.POST.get('id')
+        name = request.POST.get('name')
+
+        try:
+            skill = Skills.objects.get(id=skill_id)
+            if (skill.company_id.id == request.user.assistants.company_id_id):
+                try:
+                    skill.name = name
+                    skill.save()
+                    messages.success(request, "Nazwa umiejętności została zmieniona")
+                    return HttpResponseRedirect(reverse("assistant_manage_skill"))
+                except:
+                    messages.error(request, "Nazwa umiejętności nie została zmieniona")
+                    return HttpResponseRedirect(reverse("assistant_manage_skill"))
+            else:
+                messages.error(request, "Nazwa umiejętności nie została zmieniona")
+                return HttpResponseRedirect(reverse("assistant_manage_skill"))
+        except:
+            messages.error(request, "Nazwa umiejętności nie została zmieniona")
+            return HttpResponseRedirect(reverse("assistant_manage_skill"))
+
+
+def assistant_edit_rating_worker_skill(request, worker_id):
+    try:
+        request.session['worker_id'] = worker_id
+        company = Companies.objects.get(id=request.user.assistants.company_id_id)
+        worker = Workers.objects.get(id=worker_id)
+        if (worker.company_id.id == request.user.assistants.company_id_id):
+            ratings = Ratings.objects.filter(worker_id=worker.id)
+            skills = Skills.objects.filter(company_id=company.id)
+            list = []
+            for i in range(5):
+                list.append(i)
+            return render(request, "assistant_template/edit_rating_worker_skill_template.html",
+                          {"skills": skills, "ratings": ratings, "worker": worker, "worker_id": worker_id,
+                           "list": list})
+    except:
+        return HttpResponseRedirect(reverse("assistant_manage_worker"))
+
+
+def assistant_edit_rating_worker_skill_save(request):
+    if request.method != "POST":
+        return HttpResponse("<h2>Method Not Allowed</h2>")
+    else:
+        worker_id = request.session.get("worker_id")
+        if worker_id is None:
+            return HttpResponseRedirect(reverse("assistant_manage_worker"))
+        try:
+
+            ratings = Ratings.objects.filter(worker_id_id=worker_id)
+            for rating in ratings:
+                rate = int(request.POST.get(str(rating.id)))
+                if rate >= 0 and rate < 5:
+                    worker_rating = Ratings.objects.get(id=rating.id)
+                    worker_rating.rate = rate
+                    worker_rating.save()
+
+            company = Companies.objects.get(id=request.user.assistants.company_id_id)
+
+            worker_sum = Ratings.objects.filter(worker_id=worker_id).aggregate(Sum('rate'))
+            total = Totals(worker_id_id=worker_id, company_id_id=company.id, total_rate=worker_sum['rate__sum'])
+            total.save()
+
+            del request.session['worker_id']
+            messages.success(request, "Oceny zostały zmienione")
+            return HttpResponseRedirect(reverse("assistant_edit_rating_worker_skill", kwargs={'worker_id': worker_id}))
+        except:
+            messages.error(request, "Oceny nie zostały zmienione")
+            return HttpResponseRedirect(reverse("assistant_edit_rating_worker_skill", kwargs={'worker_id': worker_id}))
+
+
+def assistant_skill_matrix_table(request):
+    company = Companies.objects.get(id=request.user.assistants.company_id_id)
+    workers = Workers.objects.filter(company_id=company.id).exclude(archival=True).order_by('position_id')
+    skills = Skills.objects.filter(company_id=company.id)
+    ratings = Ratings.objects.filter(company_id=company.id).exclude(worker_id__archival=True)
+    count_position = len(Workers.objects.filter(company_id=company.id).exclude(position_id__isnull=True))
+    count_division = len(Workers.objects.filter(company_id=company.id).exclude(division_id__isnull=True))
+
+    context = {"ratings": ratings, "skills": skills, "workers": workers, "count_position": count_position,
+               "count_division": count_division}
+
+    return render(request, "assistant_template/skill_matrix_table_template.html", context)
+
+
+def assistant_comparison_of_workers(request):
+    company = Companies.objects.get(id=request.user.assistants.company_id_id)
+    workers = Workers.objects.filter(company_id=company.id).exclude(archival=True)
+    return render(request, "assistant_template/comparision_of_workers_template.html", {"workers": workers})
+
+
+def assistant_compare_workers(request):
+    if request.method != 'POST':
+        return HttpResponse("Method Not Allowed")
+    else:
+        worker_1 = request.POST.get('worker_1')
+        worker_2 = request.POST.get('worker_2')
+
+        try:
+            worker1 = Workers.objects.get(id=worker_1)
+            worker2 = Workers.objects.get(id=worker_2)
+            if (
+                    worker1.company_id.id == request.user.assistants.company_id_id and worker2.company_id.id == request.user.assistants.company_id_id):
+                company = Companies.objects.get(id=request.user.assistants.company_id_id)
+                workers = Workers.objects.filter(company_id=company.id).exclude(archival=True)
+                skills = Skills.objects.filter(company_id=company.id)
+
+                worker_ratings1 = Ratings.objects.filter(worker_id=worker1.id)
+                worker_ratings2 = Ratings.objects.filter(worker_id=worker2.id)
+                worker1_count = worker_ratings1.aggregate(Count('rate'))
+                worker1_sum = worker_ratings1.aggregate(Sum('rate'))
+                worker2_count = worker_ratings2.aggregate(Count('rate'))
+                worker2_sum = worker_ratings2.aggregate(Sum('rate'))
+                worker1_rate = int(worker1_sum['rate__sum'] / (worker1_count['rate__count'] * 4) * 100)
+
+                worker2_rate = int(worker2_sum['rate__sum'] / (worker2_count['rate__count'] * 4) * 100)
+                numbers = [0, 1, 2, 3, 4]
+                rowspan = 0
+                if worker1.position_id or worker2.position_id:
+                    if worker1.division_id or worker2.division_id:
+                        rowspan = 5
+                    elif not worker1.division_id and not worker2.division_id:
+                        rowspan = 4
+                elif not worker1.position_id and not worker2.position_id:
+                    if worker1.division_id or worker2.division_id:
+                        rowspan = 4
+                    elif not worker1.division_id and not worker2.division_id:
+                        rowspan = 3
+
+                context = {"workers": workers, "worker1": worker1, "worker2": worker2, "skills": skills,
+                           "worker1_rate": worker1_rate, "worker2_rate": worker2_rate,
+                           "worker_ratings1": worker_ratings1, "worker_ratings2": worker_ratings2, "numbers": numbers,
+                           "rowspan": rowspan}
+
+                return render(request, "assistant_template/comparision_of_workers_template.html", context)
+            else:
+                return HttpResponseRedirect(reverse("assistant_comparision_of_workers"))
+        except:
+            return HttpResponseRedirect(reverse("assistant_comparision_of_workers"))

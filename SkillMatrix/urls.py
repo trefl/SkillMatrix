@@ -21,7 +21,6 @@ from skill_matrix_app import views, AdminViews, ManagerViews, AssistantViews
 
 urlpatterns = [
 
-    path('showDemoPage', views.showDemoPage, name="showDemoPage"),
     path('signup_admin', views.signup_admin, name="signup_admin"),
     path('signup_manager', views.signup_manager, name="signup_manager"),
 
@@ -31,9 +30,8 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
 
 
-
+    # --Admin--
     path('admin/', admin.site.urls),
-
     path('', views.ShowLoginPage, name="show_login"),
     path('get_user_details', views.GetUserDetails),
     path('logout_user', views.logout_user, name="logout_user"),
@@ -53,13 +51,7 @@ urlpatterns = [
 
     path('manage_users', AdminViews.manage_users, name="manage_users"),
 
-    path('add_manager', AdminViews.add_manager, name="add_manager"),
-    path('add_manager_save', AdminViews.add_manager_save, name="add_manager_save"),
-
-
-    #path('add_assistant', AdminViews.add_assistant, name="add_assistant"),
-
-
+    # --Manager--
 
     path('manager_home', ManagerViews.manager_home, name="manager_home"),
     path('manager_profile', ManagerViews.manager_profile, name="manager_profile"),
@@ -87,7 +79,6 @@ urlpatterns = [
     path('edit_position_save', ManagerViews.edit_position_save, name="edit_position_save"),
     path('pin_to_position', ManagerViews.pin_to_position, name="pin_to_position"),
 
-
     path('manage_division', ManagerViews.manage_division, name="manage_division"),
     path('add_division_save', ManagerViews.add_division_save, name="add_division_save"),
     path('delete_division/<str:division_id>', ManagerViews.delete_division, name="delete_division"),
@@ -95,14 +86,10 @@ urlpatterns = [
     path('edit_division_save', ManagerViews.edit_division_save, name="edit_division_save"),
     path('pin_to_division', ManagerViews.pin_to_division, name="pin_to_division"),
 
-
     path('manage_skill', ManagerViews.manage_skill, name="manage_skill"),
     path('add_skill_save', ManagerViews.add_skill_save, name="add_skill_save"),
     path('delete_skill/<str:skill_id>', ManagerViews.delete_skill, name="delete_skill"),
     path('edit_skill_save', ManagerViews.edit_skill_save, name="edit_skill_save"),
-
-
-
 
     path('edit_rating_worker_skill/<str:worker_id>', ManagerViews.edit_rating_worker_skill, name="edit_rating_worker_skill"),
     path('edit_rating_worker_skill_save', ManagerViews.edit_rating_worker_skill_save, name="edit_rating_worker_skill_save"),
@@ -110,26 +97,44 @@ urlpatterns = [
     path('comparison_of_workers', ManagerViews.comparison_of_workers, name="comparison_of_workers"),
     path('compare_workers', ManagerViews.compare_workers, name="compare_workers"),
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    # --Assistant--
 
     path('assistant_home', AssistantViews.assistant_home, name="assistant_home"),
     path('assistant_profile', AssistantViews.assistant_profile, name="assistant_profile"),
     path('assistant_profile_save', AssistantViews.assistant_profile_save, name="assistant_profile_save"),
     path('assistant_change_password', AssistantViews.assistant_change_password, name="assistant_change_password"),
+
+    path('assistant_add_worker', AssistantViews.assistant_add_worker, name="assistant_add_worker"),
+    path('assistant_add_worker_save', AssistantViews.assistant_add_worker_save, name="assistant_add_worker_save"),
+    path('assistant_manage_worker', AssistantViews.assistant_manage_worker, name="assistant_manage_worker"),
+    path('assistant_delete_worker/<str:worker_id>', AssistantViews.assistant_delete_worker, name="assistant_delete_worker"),
+    path('assistant_edit_worker/<str:worker_id>', AssistantViews.assistant_edit_worker, name="assistant_edit_worker"),
+    path('assistant_edit_worker_save', AssistantViews.assistant_edit_worker_save, name="assistant_edit_worker_save"),
+    path('assistant_profile_worker/<str:worker_id>', AssistantViews.assistant_profile_worker, name="assistant_profile_worker"),
+
+    path('assistant_manage_position', AssistantViews.assistant_manage_position, name="assistant_manage_position"),
+    path('assistant_add_position_save', AssistantViews.assistant_add_position_save, name="assistant_add_position_save"),
+    path('assistant_delete_position/<str:position_id>', AssistantViews.assistant_delete_position, name="assistant_delete_position"),
+    path('assistant_unpin_from_position/<str:worker_id>', AssistantViews.assistant_unpin_from_position, name="assistant_unpin_from_position"),
+    path('assistant_edit_position_save', AssistantViews.assistant_edit_position_save, name="assistant_edit_position_save"),
+    path('assistant_pin_to_position', AssistantViews.assistant_pin_to_position, name="assistant_pin_to_position"),
+
+    path('assistant_manage_division', AssistantViews.assistant_manage_division, name="assistant_manage_division"),
+    path('assistant_add_division_save', AssistantViews.assistant_add_division_save, name="assistant_add_division_save"),
+    path('assistant_delete_division/<str:division_id>', AssistantViews.assistant_delete_division, name="assistant_delete_division"),
+    path('assistant_unpin_from_division/<str:worker_id>', AssistantViews.assistant_unpin_from_division, name="assistant_unpin_from_division"),
+    path('assistant_edit_division_save', AssistantViews.assistant_edit_division_save, name="assistant_edit_division_save"),
+    path('assistant_pin_to_division', AssistantViews.assistant_pin_to_division, name="assistant_pin_to_division"),
+
+    path('assistant_manage_skill', AssistantViews.assistant_manage_skill, name="assistant_manage_skill"),
+    path('assistant_add_skill_save', AssistantViews.assistant_add_skill_save, name="assistant_add_skill_save"),
+    path('assistant_delete_skill/<str:skill_id>', AssistantViews.assistant_delete_skill, name="assistant_delete_skill"),
+    path('assistant_edit_skill_save', AssistantViews.assistant_edit_skill_save, name="assistant_edit_skill_save"),
+
+    path('assistant_edit_rating_worker_skill/<str:worker_id>', AssistantViews.assistant_edit_rating_worker_skill, name="assistant_edit_rating_worker_skill"),
+    path('assistant_edit_rating_worker_skill_save', AssistantViews.assistant_edit_rating_worker_skill_save, name="assistant_edit_rating_worker_skill_save"),
+    path('assistant_skill_matrix_table', AssistantViews.assistant_skill_matrix_table, name="assistant_skill_matrix_table"),
+    path('assistant_comparison_of_workers', AssistantViews.assistant_comparison_of_workers, name="assistant_comparison_of_workers"),
+    path('assistant_compare_workers', AssistantViews.assistant_compare_workers, name="assistant_compare_workers"),
 
               ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

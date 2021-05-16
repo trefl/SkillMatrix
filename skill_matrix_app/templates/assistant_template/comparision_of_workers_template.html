@@ -1,0 +1,238 @@
+{% extends 'assistant_template/base_template.html' %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}
+{% endblock page_title %}
+{% block main_content %}
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <form role="form" action="/assistant_compare_workers" method="post">
+                                {% csrf_token %}
+
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col">
+                                            <label>Pracownik 1</label>
+                                            <select class="form-control" name="worker_1" required>
+                                                <option value="" disabled selected hidden>Wybierz pracownika</option>
+                                                {% for worker in workers %}
+                                                    <option value="{{ worker.id }}">{{ worker.first_name }} {{ worker.last_name }}
+                                                        {% if worker.position_id.id != None %}  --
+                                                            {{ worker.position_id.name }}{% endif %}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col">
+
+                                            <label>Pracownik 2</label>
+                                            <select class="form-control" name="worker_2" required>
+                                                <option value="" disabled selected hidden>Wybierz pracownika</option>
+                                                {% for worker in workers %}
+                                                    <option value="{{ worker.id }}">{{ worker.first_name }} {{ worker.last_name }}
+                                                        {% if worker.position_id.id != None %}  --
+                                                            {{ worker.position_id.name }}{% endif %}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+
+                                        <div class="col"></div>
+                                        <div class="col">
+                                            <button type="submit" class="btn btn-info btn-block">Porównaj</button>
+                                        </div>
+                                        <div class="col"></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- /.card -->
+    </section>
+
+    {% if worker1 %}
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title"><b>Pracownicy</b></h3>
+
+
+                                <div class="card-tools">
+                                    <div class="input-group input-group-sm" style="width: 150px;">
+                                        <div class="input-group-append">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body table-responsive py-sm-0">
+                                <table class="table table-hover block table-bordered text-nowrap ">
+                                    <thead>
+
+                                    <tr>
+
+
+                                        <th class="align-middle" rowspan="{{ rowspan }}">
+                                            <div class="text-center">
+
+
+                                                <canvas id="myChart"
+                                                        style="min-height: 300%; height: 300px; max-height: 100%; max-width: 80%;"></canvas>
+
+                                            </div>
+                                        </th>
+                                        <th class="align-middle text-center"><img src="{{ worker1.profile_pic }}"
+                                                                                  style="width: 150px"></th>
+                                        <th class="align-middle text-center"><img src="{{ worker2.profile_pic }}"
+                                                                                  style="width: 150px"></th>
+
+                                    </tr>
+                                    <tr>
+
+
+                                        <th class="align-middle text-center">{{ worker1.first_name }}<br>{{ worker1.last_name }}
+                                        </th>
+                                        <th class="align-middle text-center">{{ worker2.first_name }}<br>{{ worker2.last_name }}
+                                        </th>
+
+                                    </tr>
+                                    {% if worker1.position_id or worker2.position_id %}
+                                        <tr>
+
+                                            <td class="align-middle text-center">{{ worker1.position_id.name }}</td>
+                                            <td class="align-middle text-center">{{ worker2.position_id.name }}</td>
+                                        </tr>
+                                    {% endif %}
+
+                                    {% if worker1.division_id or worker2.division_id %}
+                                        <tr>
+
+                                            <td class="align-middle text-center">{{ worker1.division_id.name }}</td>
+                                            <td class="align-middle text-center">{{ worker2.division_id.name }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    <tr>
+
+                                        <td class="align-middle text-center">
+                                            <input type="text" class="knob" value="{{ worker1_rate }}" disabled
+                                                   data-skin=""
+                                                   data-thickness="0.2"
+                                                   data-width="120"
+                                                   data-height="120" data-fgColor="#17a2b8" data-readonly="true">
+
+                                        </td>
+                                        <td class="align-middle text-center">
+                                            <input type="text" class="knob" value="{{ worker2_rate }}" disabled
+                                                   data-skin=""
+                                                   data-thickness="0.2"
+                                                   data-width="120"
+                                                   data-height="120" data-fgColor="#17a2b8" data-readonly="true">
+
+                                        </td>
+                                    </tr>
+                                    {#                                {% endif %}#}
+                                    </thead>
+
+                                    <tbody>
+                                    {% for skill in skills %}
+                                        <tr>
+
+                                            <td class="align-middle">{{ skill.name }}</td>
+
+                                            {% for rating1 in worker_ratings1 %}
+                                                {% if skill.id ==  rating1.skill_id.id %}
+
+                                                    {% for number1 in numbers %}
+                                                        {% if rating1.rate == number1 %}
+                                                            <td class="align-middle text-center">
+                                                                {{ number1 }}
+                                                            </td>
+                                                            {% for rating2 in worker_ratings2 %}
+                                                                {% if skill.id ==  rating2.skill_id.id %}
+
+                                                                    {% for number2 in numbers %}
+                                                                        {% if rating2.rate == number2 %}
+                                                                            <td class="align-middle text-center">
+                                                                                {{ number2 }}
+                                                                            </td>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+
+
+        </section>
+    {% endif %}
+    <!-- /.content -->
+{% endblock main_content %}
+{% block custom_js %}
+
+    <script>
+        $(function () {
+            /* jQueryKnob */
+
+            $('.knob').knob({
+
+                draw: function () {
+
+                }
+            })
+
+            //-------------
+            //- LINE CHART -
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var myChart1 = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [{% for skill in skills %}'{{ skill.name }}',{% endfor %}],
+                    datasets: [{
+                        data: [{% for rating in worker_ratings1 %}{{ rating.rate }}, {% endfor %}],
+                        label: "{{ worker1.first_name }} {{ worker1.last_name }}",
+                        borderColor: 'rgba(	30 144 255)',
+                        backgroundColor: 'rgba(0 191 255)',
+                        fill: true,
+                    },
+                        {
+                            data: [{% for rating in worker_ratings2 %}{{ rating.rate }}, {% endfor %}],
+                            label: "{{ worker2.first_name }} {{ worker2.last_name }}",
+                            borderColor: 'rgba(255 20 147)',
+                            backgroundColor: ['rgba(255 192 203)'],
+                            fill: true,
+                        },
+                    ]
+                },
+            });
+        })
+
+
+    </script>
+{% endblock custom_js %}
