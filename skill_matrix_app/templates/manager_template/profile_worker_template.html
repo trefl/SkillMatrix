@@ -21,6 +21,7 @@
         <div class="alert alert-secondary" role="alert">
         Pracownik archiwalny
     {% endif %}
+
 </div>
     <hr>
     <div class="row">
@@ -89,22 +90,25 @@
     <div class="row">
         <div class="col-md-3">
             <div class="text-center">
-
+                <br>
+                <input type="text" class="knob" value="{{ worker_rate }}" disabled data-skin="" data-thickness="0.2"
+                       data-width="120"
+                       data-height="120" data-fgColor="#17a2b8" data-readonly="true">
                 <br><br>
                 <div class="d-flex justify-content-center">
-                    <a href="{% url "edit_rating_worker_skill" worker.id %}" type="button" class="btn btn-outline-secondary">Edytuj
+                    <a href="{% url "edit_rating_worker_skill" worker.id %}" type="button"
+                       class="btn btn-outline-secondary">Edytuj
                         oceny</a>
                 </div>
-        </div>
+            </div>
         </div>
 
-        <div class="col-md-9 personal-info">
+        <div class="col-md-9">
 
             {% for rate in ratings %}
                 {% csrf_token %}
 
-
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="progress-group">
                         {{ rate.skill_id.name }}
                         <span class="float-right"><b>{{ rate.rate }}</b>/4</span>
@@ -113,11 +117,12 @@
                                 <div class="progress-bar bg-info" style="width: 0%"></div>
                             {% elif rate.rate == 1 %}
                                 <div class="progress-bar bg-info" style="width: 25%"></div>
-                                {% elif rate.rate == 2 %}
+                            {% elif rate.rate == 2 %}
                                 <div class="progress-bar bg-info" style="width: 50%"></div>
-                                {% elif rate.rate == 3 %}
+                            {% elif rate.rate == 3 %}
+
                                 <div class="progress-bar bg-info" style="width: 75%"></div>
-                                {% elif rate.rate == 4 %}
+                            {% elif rate.rate == 4 %}
                                 <div class="progress-bar bg-info" style="width: 100%"></div>
                             {% endif %}
                         </div>
@@ -127,6 +132,22 @@
 
         </div>
     </div>
+    <br>
+    <br>
+    <div class="row">
+    <!-- left column -->
+    <div class="col-md-3">
+    </div>
+    <div class="col-md-6">
+        <div>
+            {% if chart %}
+                <img class="img-fluid" src="data:image/png;base64, {{ chart|safe }}">
+            {% endif %}
+        </div>
+    <div class="col-md-3">
+    </div>
+    </div>
+
 
 
 
@@ -134,3 +155,21 @@
 
 
 {% endblock main_content %}
+{% block custom_js %}
+
+    <script>
+        $(function () {
+            /* jQueryKnob */
+
+            $('.knob').knob({
+
+                draw: function () {
+
+                }
+            })
+
+
+        })
+
+    </script>
+{% endblock custom_js %}

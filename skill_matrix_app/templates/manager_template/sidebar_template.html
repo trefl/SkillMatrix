@@ -30,7 +30,7 @@
           <li class="nav-item">
               {% url 'add_assistant' as add_assistant %}
             <a href="{% url 'add_assistant' %}" class="nav-link {% if request.path == add_assistant %} active {% endif %}">
-              <i class="nav-icon fas fa-th"></i>
+              <i class="fas fa-user-plus"> </i>
               <p>
                 Dodaj asystenta
               </p>
@@ -39,7 +39,7 @@
           <li class="nav-item">
               {% url 'manage_assistant' as manage_assistant %}
             <a href="{% url 'manage_assistant' %}" class="nav-link {% if request.path == manage_assistant %} active {% endif %}">
-              <i class="nav-icon fas fa-th"></i>
+              <i class="fas fa-users"></i>
               <p>
                 Asystenci
               </p>
@@ -51,7 +51,7 @@
                 {% url 'edit_worker' worker_id as edit_worker %}
                 {% url 'profile_worker' worker_id as profile_worker %}
             <a href="{% url 'manage_worker' %}" class="nav-link  {% if request.path == manage_worker %} active {% endif %} {% if request.path == edit_worker %} active {% endif %} {% if request.path == profile_worker %} active {% endif %}">
-              <i class="nav-icon fas fa-th"></i>
+              <i class="fas fa-address-card"></i>
               <p>
                 Pracownicy
               </p>
@@ -60,7 +60,7 @@
           <li class="nav-item">
               {% url 'manage_position' as manage_position %}
             <a href="{% url 'manage_position' %}" class="nav-link {% if request.path == manage_position %} active {% endif %} ">
-              <i class="nav-icon fas fa-th"></i>
+              <i class="fas fa-star"></i>
               <p>
                 Stanowiska
               </p>
@@ -69,7 +69,7 @@
           <li class="nav-item">
               {% url 'manage_division' as manage_division %}
             <a href="{% url 'manage_division' %}" class="nav-link {% if request.path == manage_division %} active {% endif %}">
-              <i class="nav-icon fas fa-th"></i>
+              <i class="fas fa-cogs"></i>
               <p>
                 Działy/Brygady
               </p>
@@ -78,85 +78,32 @@
           <li class="nav-item">
               {% url 'manage_skill' as manage_skill %}
                           <a href="{% url 'manage_skill' %}" class="nav-link {% if request.path == manage_skill %} active {% endif %}">
-              <i class="nav-icon fas fa-th"></i>
+              <i class="fas fa-chart-line"></i>
               <p>
                 Umiejętności
               </p>
             </a>
           </li>
           <li class="nav-item">
-              {%  url 'add_subject' as add_subject %}
-{#            <a href="{% url 'add_subject' %}" class="nav-link {% if request.path == add_subject %} active {% endif %}">#}
+              {%  url 'skill_matrix_table' as skill_matrix_table %}
+            <a href="{% url 'skill_matrix_table' %}" class="nav-link {% if request.path == skill_matrix_table %} active {% endif %}">
               <i class="nav-icon fas fa-th"></i>
               <p>
-                Add Subject
+                Matryca kompetencji
               </p>
             </a>
           </li>
           <li class="nav-item">
-              {% url 'manage_subject' as manage_subject %}
-              {% url 'edit_subject' subject_id=id as edit_subject %}
-{#            <a href="{%  url 'manage_subject' %}" class="nav-link {% if request.path == manage_subject %} active {% endif %} {% if request.path == edit_subject %} active {% endif %}">#}
-              <i class="nav-icon fas fa-th"></i>
+              {% url 'comparison_of_workers' as comparison_of_workers %}
+               <a href="{%  url 'comparison_of_workers' %}" class="nav-link {% if request.path == comparison_of_workers %} active {% endif %} ">
+              <i class="fas fa-people-arrows"> </i>
               <p>
-                Manage Subject
+                Pracownicy-porównanie
               </p>
             </a>
           </li>
-          <li class="nav-item">
-              {% url 'manage_session' as manage_session %}
-{#              <a href="{%  url 'manage_session' %}" class="nav-link {% if request.path == manage_session %} active {% endif %} ">#}
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Manage Session Year
-              </p>
-            </a>
-          </li>
-          <li class="nav-item">
-              {% url 'student_feedback_message' as student_feedback_message %}
-{#              <a href="{%  url 'student_feedback_message' %}" class="nav-link {% if request.path == student_feedback_message %} active {% endif %} ">#}
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Student Feedback
-              </p>
-            </a>
-          </li>
-          <li class="nav-item">
-              {% url 'staff_feedback_message' as student_feedback_message %}
-{#              <a href="{%  url 'staff_feedback_message' %}" class="nav-link {% if request.path == staff_feedback_message %} active {% endif %} ">#}
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Staff Feedback
-              </p>
-            </a>
-          </li>
-          <li class="nav-item">
-              {% url 'student_leave_view' as student_leave_view %}
-{#              <a href="{%  url 'student_leave_view' %}" class="nav-link {% if request.path == student_leave_view %} active {% endif %} ">#}
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Student Leave
-              </p>
-            </a>
-          </li>
-          <li class="nav-item">
-              {% url 'staff_leave_view' as staff_leave_view %}
-{#              <a href="{%  url 'staff_leave_view' %}" class="nav-link {% if request.path == staff_leave_view %} active {% endif %} ">#}
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Staff Leave
-              </p>
-            </a>
-          </li>
-        <li class="nav-item">
-              {% url 'admin_view_attendance' as admin_view_attendance %}
-{#              <a href="{%  url 'admin_view_attendance' %}" class="nav-link {% if request.path == admin_view_attendance %} active {% endif %} ">#}
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                View Attendance
-              </p>
-            </a>
-          </li>
+
+
 
         </ul>
       </nav>

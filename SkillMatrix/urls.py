@@ -21,7 +21,7 @@ from skill_matrix_app import views, AdminViews, ManagerViews, AssistantViews
 
 urlpatterns = [
 
-
+    path('showDemoPage', views.showDemoPage, name="showDemoPage"),
     path('signup_admin', views.signup_admin, name="signup_admin"),
     path('signup_manager', views.signup_manager, name="signup_manager"),
 
@@ -102,8 +102,15 @@ urlpatterns = [
     path('edit_skill_save', ManagerViews.edit_skill_save, name="edit_skill_save"),
 
 
+
+
     path('edit_rating_worker_skill/<str:worker_id>', ManagerViews.edit_rating_worker_skill, name="edit_rating_worker_skill"),
     path('edit_rating_worker_skill_save', ManagerViews.edit_rating_worker_skill_save, name="edit_rating_worker_skill_save"),
+    path('skill_matrix_table', ManagerViews.skill_matrix_table, name="skill_matrix_table"),
+    path('comparison_of_workers', ManagerViews.comparison_of_workers, name="comparison_of_workers"),
+    path('compare_workers', ManagerViews.compare_workers, name="compare_workers"),
+
+
 
 
 

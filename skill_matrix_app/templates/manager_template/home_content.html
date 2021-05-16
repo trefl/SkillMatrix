@@ -1,20 +1,249 @@
 {% extends 'manager_template/base_template.html' %}
-{%  block page_title %}
-    Home<br>
-   username: {{ user.username }}<br>
-    user id: {{ user.id }}<br>
-    nazwa: {{ user.first_name }}<br>
-
-    company_połączenie: {{ user.managers.company_id_id}}<br>
-    company_id : {{ company.id }}<br>
-    nazwa firmy: {{ company.name }}<br>
+{% block page_title %}
+    Dashboard
 
 {% endblock page_title %}
 {% block main_content %}
     <!-- Main content -->
     <section class="content">
-      <div class="container-fluid">
-      </div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-3 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>{{ workers_count }}</h3>
+
+                            <p>Pracownicy</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-pie-graph"></i>
+                        </div>
+                        <a href="{% url 'manage_worker' %}" class="small-box-footer">Wiecej informacji <i
+                                class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <!-- ./col -->
+                <div class="col-lg-3 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>{{ positions_count }}</h3>
+
+                            <p>Stanowiska</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-pie-graph"></i>
+                        </div>
+                        <a href="{% url 'manage_position' %}" class="small-box-footer">Więcej informacji <i
+                                class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <!-- ./col -->
+                <div class="col-lg-3 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3>{{ divisions_count }}</h3>
+
+                            <p>Działy/brygady</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-pie-graph"></i>
+                        </div>
+                        <a href="{% url 'manage_division' %}" class="small-box-footer">Więcej informacji <i
+                                class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <!-- ./col -->
+                <div class="col-lg-3 col-6">
+                    <!-- small box -->
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3>{{ skills_count }}</h3>
+
+                            <p>Umiejętności</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-pie-graph"></i>
+                        </div>
+                        <a href="{% url 'manage_skill' %}" class="small-box-footer">Więcej informacji <i
+                                class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                <!-- ./col -->
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card card-lightblue ">
+                        <div class="card-header tex">
+                            <h3 class="card-title">Podział pracowników na stanowiska</h3>
+
+                            <div class="card-tools">
+                            </div>
+                        </div>
+                        <div class="card-body ">
+                            <div class="col-lg-6"></div>
+                            <canvas id="pieChart"
+                                    style="min-height: 250px; height: 250px; max-height: 250%; max-width: 100%;"></canvas>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h3 class="card-title">Podział pracowników na działy/brygady</h3>
+
+                            <div class="card-tools">
+
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="doughnutChart"
+                                    style="min-height: 250px; height: 250px; max-height: 250%; max-width: 100%;"></canvas>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h3 class="card-title">Staff Leaves vs Attendance</h3>
+
+                            <div class="card-tools">
+
+                            </div>
+                        </div>
+                        <div class="card-body">
+
+                            <div class="chart">
+                                <canvas id="barChart"
+                                        style="min-height: 225px; height: 225px; max-height: 100%; max-width: 100%;"></canvas>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
     <!-- /.content -->
 {% endblock main_content %}
+{% block custom_js %}
+
+    <script>
+        $(function () {
+
+            var dynamicColors = function () {
+                var r = Math.floor(Math.random() * 255);
+                var g = Math.floor(Math.random() * 255);
+                var b = Math.floor(Math.random() * 255);
+
+                return "rgb(" + r + "," + g + "," + b + ")";
+            }
+
+            var ctx = document.getElementById('pieChart').getContext('2d');
+            var random_color = [];
+            var d =
+            {{worker_count_list_in_position}}
+            for (let i = 0; i < d.length; i++) {
+                random_color.push(dynamicColors())
+            }
+
+            var pieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: [{% for position in positions %}'{{ position.name }}',{% endfor %}],
+                    datasets: [{
+                        data: {{worker_count_list_in_position}},
+                        label: "[{% for position in positions %}'{{ position.name }}',{% endfor %}]",
+                        {#borderColor: dynamicColors(),#}
+                        backgroundColor: random_color,
+                        fill: true,
+                    },
+
+                    ]
+                },
+            });
+
+
+            var ctx = document.getElementById('doughnutChart').getContext('2d');
+            var random_color = [];
+            var d =
+            {{worker_count_list_in_division}}
+            for (let i = 0; i < d.length; i++) {
+                random_color.push(dynamicColors())
+            }
+            var doughnutChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [{% for division in divisions %}'{{ division.name }}',{% endfor %}],
+                    datasets: [{
+                        data: {{worker_count_list_in_division}},
+                        label: "[{% for division in divisions %}'{{ division.name }}',{% endfor %}]",
+                        {#borderColor: dynamicColors(),#}
+                        backgroundColor: random_color,
+                        fill: true,
+                    },
+
+                    ]
+                },
+            });
+
+            var ctx = document.getElementById('barChart').getContext('2d');
+            ctx.canvas.width = 400;
+            var barChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: [{% for worker in workers %}'{{ worker.first_name }} {{ worker.last_name }}',{% endfor %}],
+                        datasets: [{
+                            data: {{worker_rating_list}},
+                            {#label: "[{% for worker in workers %}'{{ worker.first_name }} {{ worker.last_name }}',{% endfor %}]",#}
+                            backgroundColor     : 'rgba(60,141,188,0.9)',
+                              borderColor         : 'rgba(60,141,188,0.8)',
+                              pointRadius          : false,
+                              pointColor          : '#3b8bba',
+                              pointStrokeColor    : 'rgba(60,141,188,1)',
+                              pointHighlightFill  : '#fff',
+                              pointHighlightStroke: 'rgba(60,141,188,1)',
+                        },
+
+                        ]
+                    },
+                    options: {
+                        legend: {
+                            display: false
+                        },
+                        responsive: true,
+                        scales: {
+                            xAxes: [
+                                {
+                                    ticks: {
+                                        autoSkip: false,
+                                        maxRotation: 90,
+                                        {#minRotation: 90,#}
+
+
+                                    }
+                                }
+                            ],
+                            yAxes: [{
+         ticks: {
+            stepSize: 5
+         }
+      }]
+                        }
+                    },
+
+                }
+            );
+
+
+        })
+
+
+    </script>
+{% endblock custom_js %}
